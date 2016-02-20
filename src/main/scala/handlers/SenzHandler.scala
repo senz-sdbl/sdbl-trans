@@ -55,17 +55,16 @@ class SenzHandler {
     def handlePut(senz: Senz)(implicit context: ActorContext) = {
       // create trans form senz
       val agent = senz.sender
-      val timestamp = senz.attributes.get("#time").getOrElse("")
-      val acc = senz.attributes.get("#acc").getOrElse("")
-      val amnt = senz.attributes.get("#amnt").getOrElse("")
+      val timestamp = senz.attributes.getOrElse("#time", "")
+      val acc = senz.attributes.getOrElse("#acc", "")
+      val amnt = senz.attributes.getOrElse("#amnt", "")
       val trans = Trans(agent, timestamp, acc, amnt, "PENDING")
 
       // save in database
       transDb.createTrans(trans)
 
       // transaction request via trans actor
-      val transActor = context.actorOf(Props(classOf[TransHandler], trans))
-      transActor ! trans
+      context.actorOf(Props(classOf[TransHandler], trans))
     }
 
     def handlerShare(senz: Senz)(implicit context: ActorContext) = {

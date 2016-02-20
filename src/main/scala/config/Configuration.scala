@@ -21,6 +21,10 @@ trait Configuration {
   lazy val switchHost = Try(config.getString("switch.host")).getOrElse("localhost")
   lazy val switchPort = Try(config.getInt("switch.port")).getOrElse(9999)
 
+  // epic config
+  lazy val epicHost = Try(config.getString("epic.host")).getOrElse("localhost")
+  lazy val epicPort = Try(config.getInt("epic.port")).getOrElse(8080)
+
   // mongodb config
   lazy val mongodbHost = Try(config.getString("db.mongo.host")).getOrElse("dev.localhost")
   lazy val mongodbPort = Try(config.getInt("db.mongo.port")).getOrElse(27017)
