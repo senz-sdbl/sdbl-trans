@@ -1,8 +1,7 @@
 package components
 
-case class Agent(username: String, branch: String)
+import protocols.{Trans, Agent}
 
-case class Balance(agent: String, timestamp: String, account: String, nic: String, amount: String, status: String)
 
 /**
  * Created by eranga on 2/2/16.
@@ -16,11 +15,11 @@ trait TransDbComp {
 
     def getAgent(name: String): Agent
 
-    def createBalance(balance: Balance)
+    def createTrans(trans: Trans)
 
-    def updateBalance(balance: Balance)
+    def updateTrans(trans: Trans)
 
-    def getBalance(agent: String, timestamp: String): Balance
+    def getTrans(agent: String, timestamp: String): Trans
   }
 
 }

@@ -4,6 +4,7 @@ import actors._
 import akka.actor.ActorContext
 import components.TransDbComp
 import org.slf4j.LoggerFactory
+import protocols.Trans
 import utils.{Senz, SenzType}
 
 case class SignatureVerificationFailed()
@@ -45,19 +46,27 @@ class SenzHandler {
       }
     }
 
-    def handleGet(senz: Senz) = {
+    def handleGet(senz: Senz)(implicit context: ActorContext) = {
       // save in database
 
-      // send balance query to epic
+      // send trans request to epic
     }
 
-    def handlePut(senz: Senz) = {
+    def handlePut(senz: Senz)(implicit context: ActorContext) = {
+      // create trans form senz
+      val agent = senz.sender
+      val timestamp = senz.attributes.get("#time").getOrElse("")
+      val acc = senz.attributes.get("#acc").getOrElse("")
+      val amnt = senz.attributes.get("#amnt").getOrElse("")
+      val trans = Trans(agent, timestamp, acc, amnt, "P")
+
       // save in database
+      transDb.createTrans(trans)
 
-      // send transaction request to epic
+      // transaction request via trans actor
     }
 
-    def handlerShare(senz: Senz) = {
+    def handlerShare(senz: Senz)(implicit context: ActorContext) = {
       // nothing to do with share
     }
 

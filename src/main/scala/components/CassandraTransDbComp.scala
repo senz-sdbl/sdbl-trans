@@ -3,6 +3,7 @@ package components
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
 import db.SenzCassandraCluster
+import protocols.{Trans, Agent}
 
 /**
  * Created by eranga on 2/2/16
@@ -16,13 +17,12 @@ trait CassandraTransDbComp extends TransDbComp {
   class CassandraTransDB extends TransDb {
 
     def init() = {
-      val sqlCreateTableAgent = "CREATE TABLE IF NOT EXISTS agent username TEXT PRIMARY KEY, branch TEXT;"
+      // query to create agent
+      val sqlCreateTableAgent = "CREATE TABLE IF NOT EXISTS agent (username TEXT PRIMARY KEY, branch TEXT);"
 
-      val sqlCreateTableBalance = "CREATE TABLE IF NOT EXISTS balance agent_id TEXT, timestamp TEXT, name TEXT, account TEXT, nic TEXT, amount TEXT, status TEXT, PRIMARY KEY(agent_id, timestamp);"
-      val sqlCreateIndexBalanceStatus = "CREATE INDEX balance_status on balance(status);"
-
-      val sqlCreateTableTransaction = "CREATE TABLE IF NOT EXISTS transaction agent_id TEXT, timestamp TEXT, account TEXT, amount TEXT, status TEXT, PRIMARY KEY(agent_id, timestamp);"
-      val sqlCreateIndexTransactionStatus = "CREATE INDEX transaction_status on transaction(status);"
+      // queries to create trans
+      val sqlCreateTableTrans = "CREATE TABLE IF NOT EXISTS trans (agent TEXT, timestamp TEXT, account TEXT, amount TEXT, status TEXT, PRIMARY KEY(agent, timestamp));"
+      val sqlCreateIndexTransStatus = "CREATE INDEX trans_status on trans(status);"
     }
 
     override def createAgent(agent: Agent) = {
@@ -47,38 +47,38 @@ trait CassandraTransDbComp extends TransDbComp {
       Agent(row.getString("name"), row.getString("branch"))
     }
 
-    override def createBalance(balance: Balance) = {
+    override def createTrans(trans: Trans) = {
       // insert query
-      val statement = QueryBuilder.insertInto("balance")
-        .value("agent", balance.agent)
-        .value("branch", balance.account)
-        .value("nic", balance.nic)
-        .value("timestamp", balance.timestamp)
-        .value("status", balance.status)
+      val statement = QueryBuilder.insertInto("trans")
+        .value("agent", trans.agent)
+        .value("timestamp", trans.timestamp)
+        .value("account", trans.account)
+        .value("amount", trans.amount)
+        .value("status", trans.status)
 
       session.execute(statement)
     }
 
-    override def updateBalance(balance: Balance) = {
+    override def updateTrans(trans: Trans) = {
       // update query
-      val statement = QueryBuilder.update("balance")
-        .`with`(set("status", balance.status))
-        .where(QueryBuilder.eq("timestamp", balance.timestamp)).and(QueryBuilder.eq("agent", balance.agent))
+      val statement = QueryBuilder.update("trans")
+        .`with`(set("status", trans.status))
+        .where(QueryBuilder.eq("timestamp", trans.timestamp)).and(QueryBuilder.eq("agent", trans.agent))
 
       session.execute(statement)
     }
 
-    override def getBalance(agent: String, timestamp: String): Balance = {
+    override def getTrans(agent: String, timestamp: String): Trans = {
       // select query
       val selectStmt = select().all()
-        .from("balance")
-        .where(QueryBuilder.eq("agent_id", "1")).and(QueryBuilder.eq("timestamp", "w234234"))
+        .from("trans")
+        .where(QueryBuilder.eq("agent", "234212")).and(QueryBuilder.eq("timestamp", "w234234"))
         .limit(1)
 
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      Balance(row.getString("agent_id"), row.getString("timestamp"), row.getString("account"), row.getString("nic"), row.getString("amount"), row.getString("status"))
+      Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status"))
     }
   }
 
