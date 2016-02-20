@@ -1,7 +1,9 @@
 package actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.Actor
+import components.CassandraTransDbComp
 import crypto.RSAUtils
+import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
 
 case class InitReader()
@@ -41,8 +43,14 @@ class SenzReader extends Actor {
           logger.error("Input Senz: " + inputSenz)
           logger.error("Signed Senz: " + signedSenz)
 
+          // transaction request via trans actor
+          val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          context.actorOf(transHandlerComp.TransHandler.props(TransMsg("cakezzzzzz")))
+
+          //context.actorOf(Props(classOf[TransHandler], TransMsg("yahooo")))
+
           // start actor to handle the senz
-          context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
+          //context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
         } else {
           logger.error("Empty Senz")
         }
