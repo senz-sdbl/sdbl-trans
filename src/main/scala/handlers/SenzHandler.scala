@@ -1,7 +1,7 @@
 package handlers
 
 import actors._
-import akka.actor.ActorContext
+import akka.actor.{ActorContext, Props}
 import components.TransDbComp
 import org.slf4j.LoggerFactory
 import protocols.Trans
@@ -58,12 +58,14 @@ class SenzHandler {
       val timestamp = senz.attributes.get("#time").getOrElse("")
       val acc = senz.attributes.get("#acc").getOrElse("")
       val amnt = senz.attributes.get("#amnt").getOrElse("")
-      val trans = Trans(agent, timestamp, acc, amnt, "P")
+      val trans = Trans(agent, timestamp, acc, amnt, "PENDING")
 
       // save in database
       transDb.createTrans(trans)
 
       // transaction request via trans actor
+      val transActor = context.actorOf(Props(classOf[TransHandler], trans))
+      transActor ! trans
     }
 
     def handlerShare(senz: Senz)(implicit context: ActorContext) = {
