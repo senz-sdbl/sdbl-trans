@@ -1,7 +1,7 @@
 package handlers
 
 import actors._
-import akka.actor.{ActorContext, Props}
+import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
@@ -63,9 +63,6 @@ class SenzHandler {
       // transaction request via trans actor
       val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
       context.actorOf(transHandlerComp.TransHandler.props(transMsg))
-
-      // transaction request via trans actor
-      //context.actorOf(Props(classOf[TransHandler], transMsg))
     }
 
     def handlerShare(senz: Senz)(implicit context: ActorContext) = {

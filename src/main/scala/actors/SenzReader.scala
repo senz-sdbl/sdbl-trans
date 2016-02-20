@@ -47,8 +47,6 @@ class SenzReader extends Actor {
           val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
           context.actorOf(transHandlerComp.TransHandler.props(TransMsg("cakezzzzzz")))
 
-          //context.actorOf(Props(classOf[TransHandler], TransMsg("yahooo")))
-
           // start actor to handle the senz
           //context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
         } else {
