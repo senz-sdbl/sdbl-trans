@@ -8,7 +8,6 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import config.Configuration
 import org.slf4j.LoggerFactory
-import protocols.Trans
 
 import scala.concurrent.duration._
 
@@ -16,7 +15,7 @@ case class TransMsg(msg: String)
 
 case class TransTimeout()
 
-class TransHandler(trans: Trans) extends Actor with Configuration {
+class TransHandler(transMsg: TransMsg) extends Actor with Configuration {
 
   import context._
 
@@ -40,15 +39,12 @@ class TransHandler(trans: Trans) extends Actor with Configuration {
     case c@Connected(remote, local) =>
       logger.debug("TCP connected")
 
-      // create TransMsg
-      val transMsg = "transmsg"
-
-      logger.debug("Send TransMsg " + transMsg)
-
       // send TransMsg
       val connection = sender()
       connection ! Register(self)
-      connection ! Write(ByteString(transMsg))
+      connection ! Write(ByteString(transMsg.msg))
+
+      logger.debug("Send TransMsg " + transMsg.msg)
 
       // handler response
       context become {
@@ -59,6 +55,7 @@ class TransHandler(trans: Trans) extends Actor with Configuration {
           logger.debug("Received :" + response)
         case "close" =>
           logger.debug("Close")
+          connection ! Close
         case _: ConnectionClosed =>
           logger.debug("ConnectionClosed")
           context stop self
