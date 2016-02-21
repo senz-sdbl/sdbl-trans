@@ -38,6 +38,6 @@ class PingSender extends Actor {
       senzSender ! SendSenz(ping)
 
       // re schedule to run on one minute
-      context.system.scheduler.scheduleOnce(10 seconds, self, Ping)
+      context.system.scheduler.scheduleOnce(10 minutes, self, Ping)
   }
 }

@@ -1,9 +1,7 @@
 package actors
 
-import akka.actor.Actor
-import components.CassandraTransDbComp
+import akka.actor.{Actor, Props}
 import crypto.RSAUtils
-import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
 
 case class InitReader()
@@ -25,9 +23,9 @@ class SenzReader extends Actor {
       while (true) {
         println()
         println()
-        println("--------------------------------------------------")
+        println("----------------------------------------------------")
         println("ENTER #SENZ[SHARE #nic #nam #acc @agent_ ^sdbltrans]")
-        println("--------------------------------------------------")
+        println("----------------------------------------------------")
         println()
 
         // read user input from the command line
@@ -44,11 +42,11 @@ class SenzReader extends Actor {
           logger.error("Signed Senz: " + signedSenz)
 
           // transaction request via trans actor
-          val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(transHandlerComp.TransHandler.props(TransMsg("cakezzzzzz")))
+          //val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          //context.actorOf(transHandlerComp.TransHandler.props(TransMsg("cakezzzzzz")))
 
           // start actor to handle the senz
-          //context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
+          context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
         } else {
           logger.error("Empty Senz")
         }

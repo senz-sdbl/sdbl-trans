@@ -8,8 +8,10 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import components.TransDbComp
 import config.Configuration
+import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 import protocols.Trans
+import utils.TransUtils
 
 import scala.concurrent.duration._
 
@@ -22,10 +24,10 @@ trait TransHandlerComp {
   this: TransDbComp =>
 
   object TransHandler {
-    def props(transMsg: TransMsg): Props = Props(new TransHandler(transMsg))
+    def props(trans: Trans): Props = Props(new TransHandler(trans))
   }
 
-  class TransHandler(transMsg: TransMsg) extends Actor with Configuration {
+  class TransHandler(trans: Trans) extends Actor with Configuration {
 
     import context._
 
@@ -35,7 +37,7 @@ trait TransHandlerComp {
     val senzSender = context.actorSelection("/user/SenzSender")
 
     // handle timeout in 4 seconds
-    val cancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, TransTimeout)
+    val timeoutCancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, TransTimeout)
 
     // connect to epic tcp end
     val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
@@ -48,6 +50,9 @@ trait TransHandlerComp {
     override def receive: Receive = {
       case c@Connected(remote, local) =>
         logger.debug("TCP connected")
+
+        // transMsg from trans
+        val transMsg = TransUtils.getTransMsg(trans)
 
         // send TransMsg
         val connection = sender()
@@ -78,14 +83,19 @@ trait TransHandlerComp {
       case TransTimeout =>
         // TODO may be resend trans
         logger.error("TransTimeout")
+        timeoutCancellable.cancel()
     }
 
     def handleResponse(response: String, connection: ActorRef) = {
       // update db
-      transDb.updateTrans(Trans("sdf", "sdf", "sdf", "sdf", "sdf"))
+      transDb.updateTrans(Trans(trans.agent, trans.timestamp, trans.account, trans.amount, "DONE"))
 
       // send status back
-      senzSender ! SendSenz("DATA #msg #SHAREDONE")
+      val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
+      val senzSignature = RSAUtils.signSenz(senz.trim.replaceAll(" ", ""))
+      val signedSenz = s"$senz $senzSignature"
+
+      senzSender ! SendSenz(signedSenz)
 
       // disconnect from tcp
       connection ! Close

@@ -9,9 +9,9 @@ import protocols.Trans
 object TransUtils {
   def getTrans(senz: Senz): Trans = {
     val agent = senz.sender
-    val timestamp = senz.attributes.getOrElse("#time", "")
-    val acc = senz.attributes.getOrElse("#acc", "")
-    val amnt = senz.attributes.getOrElse("#amnt", "")
+    val timestamp = senz.attributes.getOrElse("time", "")
+    val acc = senz.attributes.getOrElse("acc", "")
+    val amnt = senz.attributes.getOrElse("amnt", "")
 
     Trans(agent, timestamp, acc, amnt, "PENDING")
   }

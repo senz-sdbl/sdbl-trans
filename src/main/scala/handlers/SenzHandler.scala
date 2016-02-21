@@ -55,7 +55,6 @@ class SenzHandler {
     def handlePut(senz: Senz)(implicit context: ActorContext) = {
       // create trans form senz
       val trans = TransUtils.getTrans(senz)
-      val transMsg = TransUtils.getTransMsg(trans)
 
       // check trans exists
       transDb.getTrans(trans.agent, trans.timestamp) match {
@@ -71,7 +70,7 @@ class SenzHandler {
 
           // transaction request via trans actor
           val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(transHandlerComp.TransHandler.props(transMsg))
+          context.actorOf(transHandlerComp.TransHandler.props(trans))
       }
     }
 
@@ -83,7 +82,7 @@ class SenzHandler {
       val regActor = context.actorSelection("/user/SenzSender/RegistrationHandler")
       val agentRegActor = context.actorSelection("/user/SenzReader/*")
 
-      senz.attributes.get("#msg") match {
+      senz.attributes.get("msg") match {
         case Some("ShareDone") =>
           agentRegActor ! RegistrationDone
         case Some("ShareFail") =>
