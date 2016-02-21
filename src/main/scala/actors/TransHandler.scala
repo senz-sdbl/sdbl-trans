@@ -2,7 +2,7 @@ package actors
 
 import java.net.{InetAddress, InetSocketAddress}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
@@ -64,7 +64,7 @@ trait TransHandlerComp {
             val response = data.decodeString("UTF-8")
             logger.debug("Received :" + response)
 
-            handleResponse(response)
+            handleResponse(response, connection)
           case "close" =>
             logger.debug("Close")
             connection ! Close
@@ -80,12 +80,15 @@ trait TransHandlerComp {
         logger.error("TransTimeout")
     }
 
-    def handleResponse(response: String) = {
+    def handleResponse(response: String, connection: ActorRef) = {
       // update db
       transDb.createTrans(Trans("sdf", "sdf", "sdf", "sdf", "sdf"))
 
-      // TODO send status back
+      // send status back
+      senzSender ! SendSenz("DATA #msg #SHAREDONE")
 
+      // disconnect from tcp
+      connection ! Close
     }
   }
 

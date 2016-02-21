@@ -19,4 +19,8 @@ object TransUtils {
   def getTransMsg(trans: Trans): TransMsg = {
     TransMsg("transMsg")
   }
+
+  def getTransResp(response: String) = {
+    
+  }
 }
