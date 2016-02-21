@@ -1,7 +1,7 @@
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%d{YYYY-MM-DD HH:mm:ss.SSS}] [%-5level] [%logger] %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%logger] %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -9,7 +9,7 @@
         <file>logs/trans.log</file>
         <append>true</append>
         <encoder>
-            <pattern>[%d{YYYY-MM-DD HH:mm:ss.SSS}] [%-5level] [%logger] %msg%n</pattern>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] [%logger] %msg%n</pattern>
         </encoder>
     </appender>
 
