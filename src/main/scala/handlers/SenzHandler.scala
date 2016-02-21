@@ -22,27 +22,27 @@ class SenzHandler {
     def handle(senz: Senz)(implicit context: ActorContext) = {
       senz match {
         case Senz(SenzType.GET, sender, receiver, attr, signature) =>
-          logger.debug(s"GET senz @$sender ^$receiver")
+          logger.debug(s"GET senz: @$sender ^$receiver")
 
           val senz = Senz(SenzType.GET, sender, receiver, attr, signature)
           handleGet(senz)
         case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
-          logger.debug(s"PUT senz @$sender ^$receiver")
+          logger.debug(s"PUT senz: @$sender ^$receiver")
 
           val senz = Senz(SenzType.PUT, sender, receiver, attr, signature)
           handlePut(senz)
         case Senz(SenzType.SHARE, sender, receiver, attr, signature) =>
-          logger.debug(s"SHARE senz @$sender ^$receiver")
+          logger.debug(s"SHARE senz: @$sender ^$receiver")
 
           val senz = Senz(SenzType.SHARE, sender, receiver, attr, signature)
           handlerShare(senz)
         case Senz(SenzType.DATA, sender, receiver, attr, signature) =>
-          logger.debug(s"DATA senz @$sender ^$receiver")
+          logger.debug(s"DATA senz: @$sender ^$receiver")
 
           val senz = Senz(SenzType.DATA, sender, receiver, attr, signature)
           handleData(senz)
         case Senz(SenzType.PING, _, _, _, _) =>
-          logger.debug(s"PING senz: IGNORE")
+          logger.debug(s"PING senz")
       }
     }
 
