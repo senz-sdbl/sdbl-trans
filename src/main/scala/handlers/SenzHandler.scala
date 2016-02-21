@@ -57,12 +57,22 @@ class SenzHandler {
       val trans = TransUtils.getTrans(senz)
       val transMsg = TransUtils.getTransMsg(trans)
 
-      // save in database
-      transDb.createTrans(trans)
+      // check trans exists
+      transDb.getTrans(trans.agent, trans.timestamp) match {
+        case Some(existingTrans) =>
+          // already existing trans
+          logger.debug("Trans exists, no need to recreate: " + "[" + existingTrans.agent + ", " + existingTrans.account + ", " + existingTrans.amount + "]")
+        case None =>
+          // new trans, so create and process it
+          logger.debug("New Trans, process it: " + "[" + trans.agent + ", " + trans.account + ", " + trans.amount + "]")
 
-      // transaction request via trans actor
-      val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-      context.actorOf(transHandlerComp.TransHandler.props(transMsg))
+          // save in database
+          transDb.createTrans(trans)
+
+          // transaction request via trans actor
+          val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          context.actorOf(transHandlerComp.TransHandler.props(transMsg))
+      }
     }
 
     def handlerShare(senz: Senz)(implicit context: ActorContext) = {

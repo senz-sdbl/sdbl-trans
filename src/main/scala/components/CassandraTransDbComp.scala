@@ -68,7 +68,7 @@ trait CassandraTransDbComp extends TransDbComp {
       session.execute(statement)
     }
 
-    override def getTrans(agent: String, timestamp: String): Trans = {
+    override def getTrans(agent: String, timestamp: String): Option[Trans] = {
       // select query
       val selectStmt = select().all()
         .from("trans")
@@ -77,8 +77,11 @@ trait CassandraTransDbComp extends TransDbComp {
 
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
+      if (row != null) {
+        Some(Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status")))
+      }
 
-      Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status"))
+      None
     }
   }
 

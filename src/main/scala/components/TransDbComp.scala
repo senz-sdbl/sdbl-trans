@@ -19,7 +19,7 @@ trait TransDbComp {
 
     def updateTrans(trans: Trans)
 
-    def getTrans(agent: String, timestamp: String): Trans
+    def getTrans(agent: String, timestamp: String): Option[Trans]
   }
 
 }
