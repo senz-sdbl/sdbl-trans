@@ -1,6 +1,6 @@
 package db
 
-import com.datastax.driver.core.{Cluster, Session}
+import com.datastax.driver.core.{PoolingOptions, HostDistance, Cluster, Session}
 import config.Configuration
 
 /**
@@ -10,9 +10,16 @@ import config.Configuration
  * @author eranga bandara(erangaeb@gmail.com)
  */
 trait SenzCassandraCluster extends Configuration {
+  lazy val poolingOptions = {
+    new PoolingOptions().
+      setConnectionsPerHost(HostDistance.LOCAL, 4, 10).
+      setConnectionsPerHost(HostDistance.REMOTE, 2, 4);
+  }
+
   lazy val cluster: Cluster = {
     Cluster.builder().
       addContactPoint(cassandraHost).
+      withPoolingOptions(poolingOptions).
       build()
   }
 

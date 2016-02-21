@@ -34,7 +34,7 @@ trait CassandraTransDbComp extends TransDbComp {
       session.execute(statement)
     }
 
-    override def getAgent(username: String): Agent = {
+    override def getAgent(username: String): Option[Agent] = {
       // select query
       val selectStmt = select().all()
         .from("agent")
@@ -44,7 +44,8 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      Agent(row.getString("name"), row.getString("branch"))
+      if (row != null) Some(Agent(row.getString("name"), row.getString("branch")))
+      else None
     }
 
     override def createTrans(trans: Trans) = {
@@ -77,11 +78,9 @@ trait CassandraTransDbComp extends TransDbComp {
 
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
-      if (row != null) {
-        Some(Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status")))
-      }
 
-      None
+      if (row != null) Some(Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status")))
+      else None
     }
   }
 

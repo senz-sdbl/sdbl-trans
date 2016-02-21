@@ -13,7 +13,7 @@ trait TransDbComp {
   trait TransDb {
     def createAgent(agent: Agent)
 
-    def getAgent(name: String): Agent
+    def getAgent(name: String): Option[Agent]
 
     def createTrans(trans: Trans)
 
