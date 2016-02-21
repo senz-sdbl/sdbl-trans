@@ -62,7 +62,7 @@ trait TransHandlerComp {
             logger.error("CommandFailed[Failed to write]")
           case Received(data) =>
             val response = data.decodeString("UTF-8")
-            logger.debug("Received :" + response)
+            logger.debug("Received : " + response)
 
             handleResponse(response, connection)
           case "close" =>
@@ -82,7 +82,7 @@ trait TransHandlerComp {
 
     def handleResponse(response: String, connection: ActorRef) = {
       // update db
-      transDb.createTrans(Trans("sdf", "sdf", "sdf", "sdf", "sdf"))
+      transDb.updateTrans(Trans("sdf", "sdf", "sdf", "sdf", "sdf"))
 
       // send status back
       senzSender ! SendSenz("DATA #msg #SHAREDONE")
