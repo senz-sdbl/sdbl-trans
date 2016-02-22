@@ -47,7 +47,7 @@ class SenzReader extends Actor {
 
           // start actor to handle the senz
           //context.actorOf(Props(classOf[SenzShareHandler], signedSenz))
-          context.actorOf(SenzShareHandler.props(signedSenz))
+          context.actorOf(ShareHandler.props(signedSenz))
         } else {
           logger.error("Empty Senz")
         }

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 
 
-object SenzShareHandler {
+object ShareHandler {
 
   case class Share(senzMsg: String)
 
@@ -17,13 +17,13 @@ object SenzShareHandler {
 
   case class ShareTimeout()
 
-  def props(senzMsg: String): Props = Props(classOf[SenzShareHandler], senzMsg)
+  def props(senzMsg: String): Props = Props(classOf[ShareHandler], senzMsg)
 
 }
 
-class SenzShareHandler(senzMsg: String) extends Actor {
+class ShareHandler(senzMsg: String) extends Actor {
 
-  import SenzShareHandler._
+  import ShareHandler._
   import context._
 
   def logger = LoggerFactory.getLogger(this.getClass)

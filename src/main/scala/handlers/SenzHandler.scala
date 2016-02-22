@@ -1,7 +1,7 @@
 package handlers
 
 import actors.RegHandler.{RegDone, RegFail, Registered}
-import actors.SenzShareHandler.{ShareDone, ShareFail}
+import actors.ShareHandler.{ShareDone, ShareFail}
 import actors._
 import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
@@ -25,16 +25,16 @@ class SenzHandler {
 
           val senz = Senz(SenzType.GET, sender, receiver, attr, signature)
           handleGet(senz)
-        case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
-          logger.debug(s"PUT senz: @$sender ^$receiver")
-
-          val senz = Senz(SenzType.PUT, sender, receiver, attr, signature)
-          handlePut(senz)
         case Senz(SenzType.SHARE, sender, receiver, attr, signature) =>
           logger.debug(s"SHARE senz: @$sender ^$receiver")
 
           val senz = Senz(SenzType.SHARE, sender, receiver, attr, signature)
           handlerShare(senz)
+        case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
+          logger.debug(s"PUT senz: @$sender ^$receiver")
+
+          val senz = Senz(SenzType.PUT, sender, receiver, attr, signature)
+          handlePut(senz)
         case Senz(SenzType.DATA, sender, receiver, attr, signature) =>
           logger.debug(s"DATA senz: @$sender ^$receiver")
 
@@ -49,6 +49,10 @@ class SenzHandler {
       // save in database
 
       // send trans request to epic
+    }
+
+    def handlerShare(senz: Senz)(implicit context: ActorContext) = {
+      // nothing to do with share
     }
 
     def handlePut(senz: Senz)(implicit context: ActorContext) = {
@@ -71,10 +75,6 @@ class SenzHandler {
           val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
           context.actorOf(transHandlerComp.TransHandler.props(trans))
       }
-    }
-
-    def handlerShare(senz: Senz)(implicit context: ActorContext) = {
-      // nothing to do with share
     }
 
     def handleData(senz: Senz)(implicit context: ActorContext) = {
