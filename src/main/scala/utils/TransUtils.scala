@@ -17,7 +17,7 @@ object TransUtils {
   }
 
   def getTransMsg(trans: Trans): TransMsg = {
-    TransMsg("transMsg")
+    TransMsg("Yahoooo")
   }
 
   def getTransResp(response: String) = {

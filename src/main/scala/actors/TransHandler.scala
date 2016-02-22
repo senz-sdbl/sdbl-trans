@@ -3,7 +3,7 @@ package actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import actors.SenzSender.SenzMsg
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{ReceiveTimeout, Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
@@ -55,12 +55,12 @@ trait TransHandlerComp {
         // transMsg from trans
         val transMsg = TransUtils.getTransMsg(trans)
 
+        logger.debug("Send TransMsg " + transMsg.msg)
+
         // send TransMsg
         val connection = sender()
         connection ! Register(self)
         connection ! Write(ByteString(transMsg.msg))
-
-        logger.debug("Send TransMsg " + transMsg.msg)
 
         // handler response
         context become {
@@ -77,25 +77,17 @@ trait TransHandlerComp {
           case _: ConnectionClosed =>
             logger.debug("ConnectionClosed")
             context stop self
+          case TransTimeout =>
+            // timeout
+            logger.error("TransTimeout")
+            logger.debug("Resend TransMsg " + transMsg.msg)
+
+            // resend trans
+            connection ! Write(ByteString(transMsg.msg))
         }
       case CommandFailed(_: Connect) =>
         // failed to connect
         logger.error("CommandFailed[Failed to connect]")
-
-        // cancel timeout here
-        timeoutCancellable.cancel()
-      case TransTimeout =>
-        // timeout
-        logger.error("TransTimeout")
-        timeoutCancellable.cancel()
-
-        // transMsg from trans
-        val transMsg = TransUtils.getTransMsg(trans)
-
-        // resend trans[TODO verify this]
-        val connection = sender()
-        connection ! Register(self)
-        connection ! Write(ByteString(transMsg.msg))
     }
 
     def handleResponse(response: String, connection: ActorRef) = {
