@@ -2,7 +2,7 @@ package actors
 
 import java.net.{InetAddress, InetSocketAddress}
 
-import actors.SenzSender.SendSenz
+import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
@@ -96,7 +96,7 @@ trait TransHandlerComp {
       val senzSignature = RSAUtils.signSenz(senz.trim.replaceAll(" ", ""))
       val signedSenz = s"$senz $senzSignature"
 
-      senzSender ! SendSenz(signedSenz)
+      senzSender ! SenzMsg(signedSenz)
 
       // disconnect from tcp
       connection ! Close

@@ -1,6 +1,6 @@
 package actors
 
-import actors.SenzSender.SendSenz
+import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, Props}
 import handlers.SignatureVerificationFail
 import org.slf4j.LoggerFactory
@@ -46,7 +46,7 @@ class ShareHandler(senzMsg: String) extends Actor {
       logger.debug("SHARE received: " + senzMsg)
 
       context.setReceiveTimeout(30 milliseconds)
-      senzSender ! SendSenz(senzMsg)
+      senzSender ! SenzMsg(senzMsg)
     case ShareDone =>
       // success
       logger.debug("ShareDone")

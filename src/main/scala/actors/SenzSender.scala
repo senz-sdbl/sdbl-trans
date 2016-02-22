@@ -11,7 +11,7 @@ object SenzSender {
 
   case class InitSender()
 
-  case class SendSenz(msg: String)
+  case class SenzMsg(msg: String)
 
   def props(socket: DatagramSocket): Props = Props(new SenzSender(socket))
 
@@ -34,15 +34,17 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
       // start RegHandler in here
       val regSenz = SenzUtils.getRegistrationSenz()
       context.actorOf(RegHandler.props(regSenz), "RegHandler")
-    case SendSenz(msg) =>
-      logger.debug("SendSenz: " + msg)
+    case SenzMsg(msg) =>
+      logger.debug("SendMsg: " + msg)
 
       // TODO validate sign, encrypt the senz
 
-      sendSenz(msg)
+      send(msg)
   }
 
-  def sendSenz(msg: String) = {
+  def send(msg: String) = {
+    logger.debug("Sending SenzMsg: " + msg)
+
     val senzOut = new DatagramPacket(msg.getBytes, msg.getBytes.length, InetAddress.getByName(switchHost), switchPort)
     socket.send(senzOut)
   }

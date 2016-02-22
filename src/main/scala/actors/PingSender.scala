@@ -1,6 +1,6 @@
 package actors
 
-import actors.SenzSender.SendSenz
+import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, Props}
 import org.slf4j.LoggerFactory
 import utils.SenzUtils
@@ -43,6 +43,6 @@ class PingSender extends Actor {
 
       // send ping via sender
       val ping = SenzUtils.getPingSenz()
-      senzSender ! SendSenz(ping)
+      senzSender ! SenzMsg(ping)
   }
 }

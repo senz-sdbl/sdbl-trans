@@ -2,7 +2,7 @@ package actors
 
 import actors.PingSender.InitPing
 import actors.SenzReader.InitReader
-import actors.SenzSender.SendSenz
+import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, Props}
 import config.Configuration
 import handlers.SignatureVerificationFail
@@ -49,7 +49,7 @@ class RegHandler(senzMsg: String) extends Actor with Configuration {
   override def receive: Receive = {
     case Reg(senz) =>
       logger.debug("Reg: " + senz)
-      senzSender ! SendSenz(senz)
+      senzSender ! SenzMsg(senz)
     case RegDone =>
       logger.debug("RegDone")
 
