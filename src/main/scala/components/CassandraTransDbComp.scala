@@ -73,7 +73,7 @@ trait CassandraTransDbComp extends TransDbComp {
       // select query
       val selectStmt = select().all()
         .from("trans")
-        .where(QueryBuilder.eq("agent", "234212")).and(QueryBuilder.eq("timestamp", "w234234"))
+        .where(QueryBuilder.eq("agent", agent)).and(QueryBuilder.eq("timestamp", timestamp))
         .limit(1)
 
       val resultSet = session.execute(selectStmt)
