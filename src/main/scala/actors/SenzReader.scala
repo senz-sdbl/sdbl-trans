@@ -1,6 +1,6 @@
 package actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.Actor
 import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 
@@ -46,7 +46,8 @@ class SenzReader extends Actor {
           //context.actorOf(transHandlerComp.TransHandler.props(Trans(sdf, sdfs, fsdf, sdfds, fsd)))
 
           // start actor to handle the senz
-          context.actorOf(Props(classOf[AgentRegistrationHandler], signedSenz))
+          //context.actorOf(Props(classOf[SenzShareHandler], signedSenz))
+          context.actorOf(SenzShareHandler.props(signedSenz))
         } else {
           logger.error("Empty Senz")
         }

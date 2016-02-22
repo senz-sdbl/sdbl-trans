@@ -15,6 +15,8 @@ case class RegFail()
 
 case class Registered()
 
+case class RegTimeout()
+
 /**
  * Created by eranga on 1/22/16.
  */

@@ -21,6 +21,6 @@ object TransUtils {
   }
 
   def getTransResp(response: String) = {
-    
+
   }
 }

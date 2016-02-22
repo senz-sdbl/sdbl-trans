@@ -1,5 +1,6 @@
 package handlers
 
+import actors.SenzShareHandler.{ShareFail, ShareDone}
 import actors._
 import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
@@ -84,9 +85,9 @@ class SenzHandler {
 
       senz.attributes.get("msg") match {
         case Some("ShareDone") =>
-          agentRegActor ! RegistrationDone
+          agentRegActor ! ShareDone
         case Some("ShareFail") =>
-          agentRegActor ! RegistrationFail
+          agentRegActor ! ShareFail
         case Some("REGISTRATION_DONE") =>
           regActor ! RegDone
         case Some("REGISTRATION_FAIL") =>
