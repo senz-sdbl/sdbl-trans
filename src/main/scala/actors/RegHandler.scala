@@ -2,6 +2,7 @@ package actors
 
 import actors.PingSender.InitPing
 import actors.SenzReader.InitReader
+import actors.SenzSender.SendSenz
 import akka.actor.{Actor, Props}
 import config.Configuration
 import handlers.SignatureVerificationFail

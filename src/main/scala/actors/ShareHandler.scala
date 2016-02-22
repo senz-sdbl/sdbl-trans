@@ -1,5 +1,6 @@
 package actors
 
+import actors.SenzSender.SendSenz
 import akka.actor.{Actor, Props}
 import handlers.SignatureVerificationFail
 import org.slf4j.LoggerFactory

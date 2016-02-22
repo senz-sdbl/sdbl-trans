@@ -2,19 +2,24 @@ package actors
 
 import java.net.{DatagramPacket, DatagramSocket}
 
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 import components.CassandraTransDbComp
-import handlers.SenzHandler
 import db.SenzCassandraCluster
+import handlers.SenzHandler
 import org.slf4j.LoggerFactory
 import utils.SenzParser
 
-case class InitListener()
+object SenzListener {
 
-/**
- * Created by eranga on 1/9/16.
- */
+  case class InitListener()
+
+  def props(socket: DatagramSocket): Props = Props(new SenzListener(socket))
+
+}
+
 class SenzListener(socket: DatagramSocket) extends Actor {
+
+  import SenzListener._
 
   val senzHandler = new SenzHandler with CassandraTransDbComp with SenzCassandraCluster
 
@@ -26,6 +31,8 @@ class SenzListener(socket: DatagramSocket) extends Actor {
 
   override def receive: Receive = {
     case InitListener => {
+      logger.debug("InitListener")
+
       val buf = new Array[Byte](1024)
 
       // listen for udp socket in order to receive messages

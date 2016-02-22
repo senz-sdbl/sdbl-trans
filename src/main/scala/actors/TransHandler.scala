@@ -2,6 +2,7 @@ package actors
 
 import java.net.{InetAddress, InetSocketAddress}
 
+import actors.SenzSender.SendSenz
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}

@@ -1,5 +1,6 @@
 package actors
 
+import actors.SenzSender.SendSenz
 import akka.actor.{Actor, Props}
 import org.slf4j.LoggerFactory
 import utils.SenzUtils
@@ -32,7 +33,7 @@ class PingSender extends Actor {
 
   override def receive: Receive = {
     case InitPing =>
-      logger.debug("Init PING")
+      logger.debug("InitPing")
 
       // start scheduler to PING on every 10 seconds
       system.scheduler.schedule(0 milliseconds, 10 minutes, self, Ping)

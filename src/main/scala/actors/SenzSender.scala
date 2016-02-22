@@ -2,17 +2,24 @@ package actors
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Props, Actor}
 import config.Configuration
 import org.slf4j.LoggerFactory
 import utils.SenzUtils
 
-case class InitSender()
+object SenzSender {
 
-case class SendSenz(msg: String)
+  case class InitSender()
 
+  case class SendSenz(msg: String)
+
+  def props(socket: DatagramSocket): Props = Props(new SenzSender(socket))
+
+}
 
 class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
+
+  import SenzSender._
 
   def logger = LoggerFactory.getLogger(this.getClass)
 
@@ -22,10 +29,13 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
 
   override def receive: Receive = {
     case InitSender =>
+      logger.debug("InitSender")
+
+      // start RegHandler in here
       val regSenz = SenzUtils.getRegistrationSenz()
       context.actorOf(RegHandler.props(regSenz), "RegHandler")
     case SendSenz(msg) =>
-      logger.debug("Sending Senz: " + msg)
+      logger.debug("SendSenz: " + msg)
 
       // TODO validate sign, encrypt the senz
 
