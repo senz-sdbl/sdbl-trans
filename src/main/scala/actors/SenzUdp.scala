@@ -30,11 +30,11 @@ class SenzUdp(remote: InetSocketAddress) extends Actor {
 
       // init ping sender
       val pingSender = context.actorSelection("/user/PingSender")
-      pingSender ! InitPing
+      //pingSender ! InitPing
 
       // init SenzReader
       val senzReader = context.actorSelection("/user/SenzReader")
-      senzReader ! InitReader
+    //senzReader ! InitReader
   }
 
   def ready(connection: ActorRef): Receive = {
@@ -47,7 +47,7 @@ class SenzUdp(remote: InetSocketAddress) extends Actor {
     case UdpConnected.Disconnected =>
       // reconnect after disconnecting
       IO(UdpConnected) ! UdpConnected.Connect(self, remote)
-      //context.stop(self)
-      // TODO reconnect
+    //context.stop(self)
+    // TODO reconnect
   }
 }

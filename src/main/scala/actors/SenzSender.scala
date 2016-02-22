@@ -23,7 +23,7 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
   override def receive: Receive = {
     case InitSender =>
       val regSenz = SenzUtils.getRegistrationSenz()
-      context.actorOf(RegHandler.props(regSenz), "RegistrationHandler")
+      context.actorOf(RegHandler.props(regSenz), "RegHandler")
     case SendSenz(msg) =>
       logger.debug("Sending Senz: " + msg)
 

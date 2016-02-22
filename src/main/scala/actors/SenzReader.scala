@@ -1,15 +1,20 @@
 package actors
 
-import akka.actor.Actor
+import akka.actor.{Props, Actor}
 import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 
-case class InitReader()
 
-/**
- * Created by eranga on 1/9/16.
- */
+object SenzReader {
+
+  case class InitReader()
+
+  def props(): Props = Props(new SenzReader())
+}
+
 class SenzReader extends Actor {
+
+  import SenzReader._
 
   def logger = LoggerFactory.getLogger(this.getClass)
 

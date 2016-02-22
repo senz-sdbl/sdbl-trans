@@ -34,6 +34,6 @@ object Main extends App {
 
   // create ping sender and senz reader
   // we will start them after registration
-  val senzReader = system.actorOf(Props[SenzReader], name = "SenzReader")
-  val pingSender = system.actorOf(Props[PingSender], name = "PingSender")
+  val senzReader = system.actorOf(SenzReader.props(), name = "SenzReader")
+  val pingSender = system.actorOf(PingSender.props(), name = "PingSender")
 }

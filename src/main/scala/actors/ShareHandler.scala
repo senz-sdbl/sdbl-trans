@@ -17,7 +17,7 @@ object ShareHandler {
 
   case class ShareTimeout()
 
-  def props(senzMsg: String): Props = Props(classOf[ShareHandler], senzMsg)
+  def props(senzMsg: String): Props = Props(new ShareHandler(senzMsg))
 
 }
 

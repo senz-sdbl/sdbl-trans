@@ -78,7 +78,7 @@ class SenzHandler {
     }
 
     def handleData(senz: Senz)(implicit context: ActorContext) = {
-      val regActor = context.actorSelection("/user/SenzSender/RegistrationHandler")
+      val regActor = context.actorSelection("/user/SenzSender/RegHandler")
       val agentRegActor = context.actorSelection("/user/SenzReader/*")
 
       senz.attributes.get("msg") match {
