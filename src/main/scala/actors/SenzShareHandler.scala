@@ -1,9 +1,10 @@
 package actors
 
-import _root_.handlers.SignatureVerificationFailed
 import akka.actor.{Actor, Props}
-import scala.concurrent.duration._
+import handlers.SignatureVerificationFail
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.duration._
 
 
 object SenzShareHandler {
@@ -54,12 +55,12 @@ class SenzShareHandler(senzMsg: String) extends Actor {
       context.stop(self)
     case ShareFail =>
       // fail
-      logger.error("RegistrationFail")
+      logger.error("ShareFail")
 
       shareCancellable.cancel()
       timeoutCancellable.cancel()
       context.stop(self)
-    case SignatureVerificationFailed =>
+    case SignatureVerificationFail =>
       logger.error("Signature verification fail")
 
       // cancel scheduler

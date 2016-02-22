@@ -12,9 +12,6 @@ case class InitSender()
 case class SendSenz(msg: String)
 
 
-/**
- * Created by eranga on 1/10/16.
- */
 class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
 
   def logger = LoggerFactory.getLogger(this.getClass)
@@ -26,7 +23,7 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
   override def receive: Receive = {
     case InitSender =>
       val regSenz = SenzUtils.getRegistrationSenz()
-      context.actorOf(Props(classOf[RegistrationHandler], regSenz), "RegistrationHandler")
+      context.actorOf(RegHandler.props(regSenz), "RegistrationHandler")
     case SendSenz(msg) =>
       logger.debug("Sending Senz: " + msg)
 

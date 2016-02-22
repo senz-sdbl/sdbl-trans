@@ -1,27 +1,32 @@
 package actors
 
-import _root_.handlers.SignatureVerificationFailed
-import akka.actor.Actor
+import akka.actor.{Actor, Props}
 import config.Configuration
+import handlers.SignatureVerificationFail
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.duration._
 
-case class Reg(senz: String)
 
-case class RegDone()
+object RegHandler {
 
-case class RegFail()
+  case class Reg(senzMsg: String)
 
-case class Registered()
+  case class RegDone()
 
-case class RegTimeout()
+  case class RegFail()
 
-/**
- * Created by eranga on 1/22/16.
- */
-class RegistrationHandler(regSenz: String) extends Actor with Configuration {
+  case class Registered()
 
+  case class RegTimeout()
+
+  def props(senzMsg: String): Props = Props(classOf[RegHandler], senzMsg)
+
+}
+
+class RegHandler(senzMsg: String) extends Actor with Configuration {
+
+  import RegHandler._
   import context._
 
   val senzSender = context.actorSelection("/user/SenzSender")
@@ -29,7 +34,7 @@ class RegistrationHandler(regSenz: String) extends Actor with Configuration {
   val senzReader = context.actorSelection("/user/SenzReader")
 
   // scheduler to run on 5 seconds
-  val cancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, Reg(regSenz))
+  val regCancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, Reg(senzMsg))
 
   // send timeout message after 12 seconds
   val timeoutCancellable = system.scheduler.scheduleOnce(10 seconds, self, RegTimeout)
@@ -46,19 +51,19 @@ class RegistrationHandler(regSenz: String) extends Actor with Configuration {
       senzSender ! SendSenz(senz)
     case RegDone =>
       logger.debug("RegDone")
-      cancellable.cancel()
+      regCancellable.cancel()
       timeoutCancellable.cancel()
       context.stop(self)
     case RegFail =>
       logger.error("RegFail")
-      cancellable.cancel()
+      regCancellable.cancel()
       timeoutCancellable.cancel()
       context.stop(self)
     case Registered =>
       logger.debug("Registered")
 
       // cancel scheduler
-      cancellable.cancel()
+      regCancellable.cancel()
       timeoutCancellable.cancel()
 
       // start ping sender and senz reader
@@ -67,11 +72,11 @@ class RegistrationHandler(regSenz: String) extends Actor with Configuration {
 
       // stop the actor
       context.stop(self)
-    case SignatureVerificationFailed =>
-      logger.error("SignatureVerificationFailed")
+    case SignatureVerificationFail =>
+      logger.error("SignatureVerificationFail")
 
       // cancel scheduler
-      cancellable.cancel()
+      regCancellable.cancel()
       timeoutCancellable.cancel()
 
       // stop the actor
@@ -80,7 +85,7 @@ class RegistrationHandler(regSenz: String) extends Actor with Configuration {
       logger.error("RegTimeout")
 
       // cancel scheduler
-      cancellable.cancel()
+      regCancellable.cancel()
       timeoutCancellable.cancel()
 
       // stop the actor

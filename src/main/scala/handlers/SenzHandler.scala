@@ -1,6 +1,7 @@
 package handlers
 
-import actors.SenzShareHandler.{ShareFail, ShareDone}
+import actors.RegHandler.{RegDone, RegFail, Registered}
+import actors.SenzShareHandler.{ShareDone, ShareFail}
 import actors._
 import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
@@ -8,11 +9,8 @@ import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
 import utils.{Senz, SenzType, TransUtils}
 
-case class SignatureVerificationFailed()
+case class SignatureVerificationFail()
 
-/**
- * Created by eranga on 1/14/16.
- */
 class SenzHandler {
   this: TransDbComp =>
 
@@ -95,7 +93,7 @@ class SenzHandler {
         case Some("ALREADY_REGISTERED") =>
           regActor ! Registered
         case Some("SignatureVerificationFailed") =>
-          context.actorSelection("/user/Senz*") ! SignatureVerificationFailed
+          context.actorSelection("/user/Senz*") ! SignatureVerificationFail
         case other =>
           logger.error("UNSUPPORTED DATA message " + other)
       }

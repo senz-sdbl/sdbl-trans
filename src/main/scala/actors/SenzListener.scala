@@ -26,7 +26,7 @@ class SenzListener(socket: DatagramSocket) extends Actor {
 
   override def receive: Receive = {
     case InitListener => {
-      val buf = new Array[Byte](1014)
+      val buf = new Array[Byte](1024)
 
       // listen for udp socket in order to receive messages
       while (true) {
