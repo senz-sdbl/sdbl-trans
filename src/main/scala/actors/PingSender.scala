@@ -42,7 +42,7 @@ class PingSender extends Actor {
       logger.debug("PING")
 
       // send ping via sender
-      val ping = SenzUtils.getPingSenz()
-      senzSender ! SenzMsg(ping)
+      val pingMsg = SenzUtils.getPingSenzMsg()
+      senzSender ! SenzMsg(pingMsg)
   }
 }

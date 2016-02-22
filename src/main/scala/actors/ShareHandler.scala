@@ -2,8 +2,8 @@ package actors
 
 import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, Props}
-import handlers.SignatureVerificationFail
 import org.slf4j.LoggerFactory
+import protocols.SignatureVerificationFail
 
 import scala.concurrent.duration._
 

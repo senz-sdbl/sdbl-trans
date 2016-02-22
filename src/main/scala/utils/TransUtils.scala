@@ -1,7 +1,7 @@
 package utils
 
 import actors.TransMsg
-import protocols.Trans
+import protocols.{Senz, Trans}
 
 /**
  * Created by eranga on 2/20/16.

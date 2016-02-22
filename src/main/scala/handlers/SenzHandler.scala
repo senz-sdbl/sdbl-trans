@@ -7,9 +7,8 @@ import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
-import utils.{Senz, SenzType, TransUtils}
-
-case class SignatureVerificationFail()
+import protocols.{SignatureVerificationFail, Senz, SenzType}
+import utils.TransUtils
 
 class SenzHandler {
   this: TransDbComp =>

@@ -7,7 +7,7 @@ import crypto.RSAUtils
  * Created by eranga on 1/11/16.
  */
 object SenzUtils extends Configuration {
-  def getRegistrationSenz() = {
+  def getRegistrationSenzMsg() = {
     // unsigned senz
     val publicKey = RSAUtils.loadRSAPublicKey()
     val timestamp = (System.currentTimeMillis / 1000).toString
@@ -20,7 +20,7 @@ object SenzUtils extends Configuration {
     s"$unSignedSenzPayload $senzSignature"
   }
 
-  def getPingSenz() = {
+  def getPingSenzMsg() = {
     // unsigned senz
     val timestamp = (System.currentTimeMillis / 1000).toString
     val receiver = switchName

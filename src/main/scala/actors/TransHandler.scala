@@ -38,7 +38,7 @@ trait TransHandlerComp {
     val senzSender = context.actorSelection("/user/SenzSender")
 
     // handle timeout in 4 seconds
-    val timeoutCancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, TransTimeout)
+    val timeoutCancellable = system.scheduler.schedule(0 milliseconds, 5 seconds, self, TransTimeout)
 
     // connect to epic tcp end
     val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
@@ -79,7 +79,6 @@ trait TransHandlerComp {
             context stop self
         }
       case CommandFailed(_: Connect) =>
-        // TODO may be reconnect
         logger.error("CommandFailed[Failed to connect]")
       case TransTimeout =>
         // TODO may be resend trans
@@ -92,6 +91,7 @@ trait TransHandlerComp {
       transDb.updateTrans(Trans(trans.agent, trans.timestamp, trans.account, trans.amount, "DONE"))
 
       // send status back
+      // TODO status according to the response
       val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
       val senzSignature = RSAUtils.signSenz(senz.trim.replaceAll(" ", ""))
       val signedSenz = s"$senz $senzSignature"

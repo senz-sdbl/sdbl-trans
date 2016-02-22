@@ -1,13 +1,7 @@
 package utils
 
-object SenzType extends Enumeration {
-  type SenzType = Value
-  val SHARE, GET, PUT, DATA, PING = Value
-}
+import protocols.{SenzType, Senz}
 
-import SenzType._
-
-case class Senz(senzType: SenzType, sender: String, receiver: String, attributes: scala.collection.mutable.Map[String, String], signature: String)
 
 /**
  * Created by eranga on 1/10/16.
@@ -48,10 +42,9 @@ object SenzParser {
     Senz(senzType, sender, receiver, attr, signature)
   }
 
-  def getSenzPayload(senz: Senz) = {
+  def getSenzMsg(senz: Senz) = {
   }
 }
-
 
 //object Main extends App {
 //  val senz = SenzParser.getSenz("SHARE #lat sdf #lon sdf @era ^bal signaturesdf")
