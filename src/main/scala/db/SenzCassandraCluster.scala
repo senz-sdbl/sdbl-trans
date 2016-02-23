@@ -13,7 +13,7 @@ trait SenzCassandraCluster extends Configuration {
   lazy val poolingOptions: PoolingOptions = {
     new PoolingOptions().
       setConnectionsPerHost(HostDistance.LOCAL, 4, 10).
-      setConnectionsPerHost(HostDistance.REMOTE, 2, 4);
+      setConnectionsPerHost(HostDistance.REMOTE, 2, 4)
   }
 
   lazy val cluster: Cluster = {

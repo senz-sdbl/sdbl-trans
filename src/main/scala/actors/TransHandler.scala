@@ -3,7 +3,7 @@ package actors
 import java.net.{InetAddress, InetSocketAddress}
 
 import actors.SenzSender.SenzMsg
-import akka.actor.{ReceiveTimeout, Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
