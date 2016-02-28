@@ -7,8 +7,8 @@ import protocols.{SenzType, Senz}
  * Created by eranga on 1/10/16.
  */
 object SenzParser {
-  def getSenz(msg: String): Senz = {
-    val tokens = msg.split(" ")
+  def getSenz(senzMsg: String): Senz = {
+    val tokens = senzMsg.split(" ")
     val senzType = SenzType.withName(tokens.head)
     val signature = tokens.last
     var sender = ""
@@ -42,18 +42,30 @@ object SenzParser {
     Senz(senzType, sender, receiver, attr, signature)
   }
 
-  def getSenzMsg(senz: Senz) = {
+  def getSenzMsg(senz: Senz): String = {
+    // attributes comes as
+    //    1. #lat 3.432 #lon 23.343
+    //    2. #lat #lon
+    var attr = ""
+    for ((k, v) <- senz.attributes) {
+      attr += s"#$k $v".trim + " "
+    }
+
+    s"${senz.senzType} ${attr.trim} @${senz.receiver} ^${senz.sender} ${senz.signature}"
   }
 }
 
 //object Main extends App {
-//  val senz = SenzParser.getSenz("SHARE #lat sdf #lon sdf @era ^bal signaturesdf")
+//  val senz = SenzParser.getSenz("SHARE #lat #lon sdf @era ^bal signaturesdf")
 //
 //  println(senz.senzType)
 //  println(senz.attributes)
 //  println(senz.receiver)
 //  println(senz.sender)
 //  println(senz.signature)
+//
+//  val msg = SenzParser.getSenzMsg(senz)
+//  println(msg)
 //
 //
 //}

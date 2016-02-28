@@ -1,8 +1,11 @@
 package actors
 
 import akka.actor.{Props, Actor}
+import components.CassandraTransDbComp
 import crypto.RSAUtils
+import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
+import utils.SenzParser
 
 
 object SenzReader {
@@ -28,15 +31,13 @@ class SenzReader extends Actor {
       while (true) {
         println()
         println()
-        println("----------------------------------------------------")
-        println("ENTER #SENZ[SHARE #nic #nam #acc @agent_ ^sdbltrans]")
-        println("----------------------------------------------------")
+        println("-----------------------------------------------")
+        println("ENTER #SENZ[SHARE #acc #amnt @agent ^sdbltrans]")
+        println("-----------------------------------------------")
         println()
 
         // read user input from the command line
         val inputSenz = scala.io.StdIn.readLine()
-
-        // TODO validate senz
 
         if (!inputSenz.isEmpty) {
           // sign senz
@@ -46,13 +47,11 @@ class SenzReader extends Actor {
           logger.error("Input Senz: " + inputSenz)
           logger.error("Signed Senz: " + signedSenz)
 
-          // transaction request via trans actor
-          //val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          //context.actorOf(transHandlerComp.TransHandler.props(Trans(sdf, sdfs, fsdf, sdfds, fsd)))
+          // TODO validate/parse senz
+          val senz = SenzParser.getSenz(signedSenz)
 
-          // start actor to handle the senz
-          //context.actorOf(Props(classOf[SenzShareHandler], signedSenz))
-          context.actorOf(ShareHandler.props(signedSenz))
+          val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          context.actorOf(shareHandlerComp.ShareHandler.props(signedSenz))
         } else {
           logger.error("Empty Senz")
         }

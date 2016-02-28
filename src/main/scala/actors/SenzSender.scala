@@ -37,7 +37,7 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
     case SenzMsg(msg) =>
       logger.debug("SendMsg: " + msg)
 
-      // TODO sign, encrypt the senz
+      // sign, encrypt the senz
 
       send(msg)
   }

@@ -1,13 +1,12 @@
 package handlers
 
 import actors.RegHandler.{RegDone, RegFail, Registered}
-import actors.ShareHandler.{ShareDone, ShareFail}
 import actors._
 import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
-import protocols.{SignatureVerificationFail, Senz, SenzType}
+import protocols.{Senz, SenzType, SignatureVerificationFail}
 import utils.TransUtils
 
 class SenzHandler {

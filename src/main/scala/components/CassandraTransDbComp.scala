@@ -38,13 +38,13 @@ trait CassandraTransDbComp extends TransDbComp {
       // select query
       val selectStmt = select().all()
         .from("agent")
-        .where(QueryBuilder.eq("name", username))
+        .where(QueryBuilder.eq("username", username))
         .limit(1)
 
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Agent(row.getString("name"), row.getString("branch")))
+      if (row != null) Some(Agent(row.getString("username"), row.getString("branch")))
       else None
     }
 
