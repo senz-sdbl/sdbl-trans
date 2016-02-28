@@ -47,17 +47,6 @@ trait ShareHandlerComp {
       case Share(senzMsg) =>
         logger.debug("SHARE received: " + senzMsg)
 
-        // parse senzMsg
-        val senz = SenzParser.getSenz(senzMsg)
-
-        // verify senz already shared with given agent
-        transDb.getAgent(senz.receiver) match {
-          case Some(agent) =>
-            logger.error(s"Existing agent, senz already shared with given agent ${senz.receiver}")
-          case None =>
-            logger.debug(s"New agent ${senz.receiver}")
-        }
-
         // TODO only share senz, if senz not already shared with given agent
         senzSender ! SenzMsg(senzMsg)
       case ShareDone =>

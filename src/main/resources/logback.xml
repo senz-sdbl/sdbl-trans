@@ -14,7 +14,7 @@
     </appender>
 
     <logger name="com.datastax.driver">
-        <level value="DEBUG"/>
+        <level value="ERROR"/>
         <appender-ref ref="FILE"/>
     </logger>
 

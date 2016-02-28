@@ -28,7 +28,7 @@ trait CassandraTransDbComp extends TransDbComp {
     override def createAgent(agent: Agent) = {
       // insert query
       val statement = QueryBuilder.insertInto("agent")
-        .value("name", agent.username)
+        .value("username", agent.username)
         .value("branch", agent.branch)
 
       session.execute(statement)
