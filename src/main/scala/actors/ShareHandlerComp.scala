@@ -47,6 +47,9 @@ trait ShareHandlerComp {
       case Share(senzMsg) =>
         logger.debug("SHARE received: " + senzMsg)
 
+        val senz = SenzParser.getSenz(senzMsg)
+        transDb.createAgent(Agent(senz.receiver, senz.receiver))
+
         // TODO only share senz, if senz not already shared with given agent
         senzSender ! SenzMsg(senzMsg)
       case ShareDone =>

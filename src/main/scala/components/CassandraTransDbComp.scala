@@ -3,7 +3,7 @@ package components
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
 import db.SenzCassandraCluster
-import protocols.{Trans, Agent}
+import protocols.{Agent, Trans}
 
 /**
  * Created by eranga on 2/2/16
