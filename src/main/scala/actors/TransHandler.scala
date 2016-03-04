@@ -18,6 +18,8 @@ import scala.concurrent.duration._
 
 case class TransMsg(msg: String)
 
+case class TransResp(esh: String, status: String, rst: String)
+
 case class TransTimeout()
 
 trait TransHandlerComp {
@@ -44,7 +46,7 @@ trait TransHandlerComp {
     val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
     IO(Tcp) ! Connect(remoteAddress)
 
-    override def preStart = {
+    override def preStart() = {
       logger.debug("Start actor: " + context.self.path)
     }
 
@@ -91,6 +93,16 @@ trait TransHandlerComp {
     }
 
     def handleResponse(response: String, connection: ActorRef) = {
+      // parse response and get 'TransResp'
+      TransUtils.getTransResp(response) match {
+        case TransResp(_, "00", _) =>
+          logger.debug("Transaction done")
+        case TransResp(_, status, _) =>
+          logger.error("Transaction fail with stats: " + status)
+        case transResp =>
+          logger.error("Invalid response " + transResp)
+      }
+
       // update db
       transDb.updateTrans(Trans(trans.agent, trans.timestamp, trans.account, trans.amount, "DONE"))
 

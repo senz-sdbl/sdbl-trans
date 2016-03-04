@@ -3,7 +3,7 @@ package utils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import actors.TransMsg
+import actors.{TransResp, TransMsg}
 import protocols.{Senz, Trans}
 
 object TransUtils {
@@ -30,8 +30,8 @@ object TransUtils {
     val epinb = "ffffffffffffffff" // ePINB, 16 digits
     val offset = "ffffffffffff" // offset, 12 digits
     val mobileNo = "0775432015" // customers mobile no
-    val fromAcc = "343434343434"// TODO trans.agent // from account, bank account, 12 digits
-    val toAcc = "646464646464"// TODO trans.account // to account, customer account, 12 digits
+    val fromAcc = "343434343434" // TODO trans.agent // from account, bank account, 12 digits
+    val toAcc = "646464646464" // TODO trans.account // to account, customer account, 12 digits
     val amnt = "%012d".format(trans.amount.toInt) // amount, 12 digits
 
     s"$transId$payMode$epinb$offset$mobileNo$fromAcc$toAcc$amnt"
@@ -46,10 +46,10 @@ object TransUtils {
     val e = "000000000000001" // MID, 16 digits
     val f = "000001" // trace no, 6 digits TODO generate this
     val g = getTransTime // date time MMDDHHMMSS
-    val h = "0001" // application ID, 4 digits
+    //val h = "0001" // application ID, 4 digits
     val i = "0000000000000000" // private data, 16 digits
 
-    s"$l$a$b$c$d$e$f$g$h$i"
+    s"$l$a$b$c$d$e$f$g$i"
   }
 
   def getTransTime = {
@@ -59,10 +59,25 @@ object TransUtils {
     format.format(now)
   }
 
+  def getTransResp(response: String) = {
+    TransResp(response.substring(0, 72), response.substring(71, 73), response.substring(73))
+  }
+
 }
 
 //object Main extends App {
 //  val agent = "222222222222"
 //  val customer = "555555555555"
-//  println(TransUtils.getTransMsg(Trans(agent, "3423432", customer, "250", "PENDING")))
+//  val msg = TransUtils.getTransMsg(Trans(agent, "3423432", customer, "250", "PENDING"))
+//  println(msg)
+//
+//
+//  TransUtils.getTransResp(msg.msg) match {
+//    case TransResp(_, "11", _) =>
+//      println("Transaction done")
+//    case TransResp(_, status, _) =>
+//      println("hoooo " + status)
+//    case transResp =>
+//      println("Invalid response " + transResp)
+//  }
 //}
