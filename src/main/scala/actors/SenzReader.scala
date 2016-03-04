@@ -1,7 +1,9 @@
 package actors
 
+import actors.MessageHandlerComp.MessageHandler
 import akka.actor.{Props, Actor}
 import components.CassandraTransDbComp
+import components.CassandraTransDbComp.CassandraMsgDB
 import crypto.RSAUtils
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
@@ -52,6 +54,10 @@ class SenzReader extends Actor {
 
           val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
           context.actorOf(shareHandlerComp.ShareHandler.props(signedSenz))
+
+          val msg = "SHARE #lat #lon"
+          val messageHandlerComp = new MessageHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          context.actorOf(messageHandlerComp.MessageHandler.props(msg))
         } else {
           logger.error("Empty Senz")
         }

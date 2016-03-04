@@ -34,6 +34,10 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
       // start RegHandler in here
       val regSenzMsg = SenzUtils.getRegistrationSenzMsg()
       context.actorOf(RegHandler.props(regSenzMsg), "RegHandler")
+
+      // initialise actor via companion object
+      val msg = "SHARE #lat #lon"
+      context.actorOf(MessageHandler.props(msg), "MessageHandler")
     case SenzMsg(msg) =>
       logger.debug("SendMsg: " + msg)
 
