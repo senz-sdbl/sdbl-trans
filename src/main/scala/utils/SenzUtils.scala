@@ -7,6 +7,10 @@ import crypto.RSAUtils
  * Created by eranga on 1/11/16.
  */
 object SenzUtils extends Configuration {
+  def isValidSenz(msg: String) = {
+    SenzParser.getSenz(msg)
+  }
+
   def getRegistrationSenzMsg() = {
     // unsigned senz
     val publicKey = RSAUtils.loadRSAPublicKey()

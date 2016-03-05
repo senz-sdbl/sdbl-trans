@@ -47,9 +47,7 @@ trait ShareHandlerComp {
       case Share(senzMsg) =>
         logger.debug("SHARE received: " + senzMsg)
 
-        throw new Exception("hoooooo....")
-
-        // parse senz means validate as well
+        // parse senz
         val senz = SenzParser.getSenz(senzMsg)
         transDb.createAgent(Agent(senz.receiver, senz.receiver))
 
