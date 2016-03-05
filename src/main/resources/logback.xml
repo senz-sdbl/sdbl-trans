@@ -35,9 +35,28 @@
         <appender-ref ref="FILE-ROLLING"/>
     </root>
 
-    <logger name="com.datastax.driver">
+    <logger name="com.datastax.driver.core.Session">
         <level value="ERROR"/>
         <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <logger name="com.datastax.driver.core.Connection">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <logger name="com.datastax.driver.core.RequestHandler">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <logger name="com.datastax.driver.core.Cluster">
+        <level value="ERROR"/>
+        <appender-ref ref="FILE-ROLLING"/>
+    </logger>
+
+    <logger name="io.netty">
+        <level value="OFF"/>
     </logger>
 
     <logger name="akka">
