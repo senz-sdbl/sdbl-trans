@@ -25,7 +25,7 @@ object TransUtils {
   }
 
   def generateFundTransferMsg(trans: Trans) = {
-    val transId = "00000000000000001" // transaction ID, 16 digits // TODO generate unique value
+    val transId = "0000000000000001" // transaction ID, 16 digits // TODO generate unique value
     val payMode = "02" // pay mode
     val epinb = "ffffffffffffffff" // ePINB, 16 digits
     val offset = "ffffffffffff" // offset, 12 digits
@@ -42,14 +42,14 @@ object TransUtils {
     val a = "MOB" // incoming channel mode[mobile]
     val b = "01" // transaction process type[financial]
     val c = "04" // transaction code[fund transfer]
-    val d = "00000001" // TID, 8 digits
-    val e = "000000000000001" // MID, 16 digits
+    val d = "00000002" // TID, 8 digits TODO in prod 00000001
+    val e = "000000000000002" // MID, 15 digits TODO in prod 000000000000001
     val f = "000001" // trace no, 6 digits TODO generate this
     val g = getTransTime // date time MMDDHHMMSS
-    //val h = "0001" // application ID, 4 digits
+    val h = "0001" // application ID, 4 digits
     val i = "0000000000000000" // private data, 16 digits
 
-    s"$l$a$b$c$d$e$f$g$i"
+    s"$l$a$b$c$d$e$f$g$h$i"
   }
 
   def getTransTime = {
@@ -60,7 +60,7 @@ object TransUtils {
   }
 
   def getTransResp(response: String) = {
-    TransResp(response.substring(0, 72), response.substring(71, 73), response.substring(73))
+    TransResp(response.substring(0, 70), response.substring(70, 72), response.substring(72))
   }
 
 }
