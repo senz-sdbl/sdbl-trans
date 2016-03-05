@@ -1,12 +1,13 @@
 package actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.SupervisorStrategy.{Restart, Stop}
+import akka.actor.{Actor, OneForOneStrategy, Props}
 import components.CassandraTransDbComp
 import crypto.RSAUtils
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
-import utils.SenzParser
 
+import scala.concurrent.duration._
 
 object SenzReader {
 
@@ -23,6 +24,12 @@ class SenzReader extends Actor {
 
   override def preStart = {
     logger.debug("Start actor: " + context.self.path)
+  }
+
+  override val supervisorStrategy = OneForOneStrategy(loggingEnabled = false) {
+    case _ =>
+      logger.info("An actor has been killed")
+      Restart
   }
 
   override def receive: Receive = {
@@ -44,14 +51,13 @@ class SenzReader extends Actor {
           val senzSignature = RSAUtils.signSenz(inputSenz.trim.replaceAll(" ", ""))
           val signedSenz = s"$inputSenz $senzSignature"
 
-          logger.error("Input Senz: " + inputSenz)
-          logger.error("Signed Senz: " + signedSenz)
-
-          // TODO validate/parse senz
-          val senz = SenzParser.getSenz(signedSenz)
+          logger.debug("Input Senz: " + inputSenz)
+          logger.debug("Signed Senz: " + signedSenz)
 
           val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(shareHandlerComp.ShareHandler.props(signedSenz))
+          //context.actorOf(shareHandlerComp.ShareHandler.props(signedSenz))
+          val test = context.actorOf(Props[TestActor], "TestActor")
+          test ! "PROCESS"
         } else {
           logger.error("Empty Senz")
         }

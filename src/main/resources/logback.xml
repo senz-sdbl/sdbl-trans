@@ -59,8 +59,4 @@
         <level value="OFF"/>
     </logger>
 
-    <logger name="akka">
-        <level value="ERROR"/>
-        <appender-ref ref="FILE-ROLLING"/>
-    </logger>
 </configuration>
