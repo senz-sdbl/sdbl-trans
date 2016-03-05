@@ -18,33 +18,33 @@ trait CassandraTransDbComp extends TransDbComp {
 
     def init() = {
       // query to create agent
-      val sqlCreateTableAgent = "CREATE TABLE IF NOT EXISTS agent (username TEXT PRIMARY KEY, branch TEXT);"
+      val sqlCreateTableAgent = "CREATE TABLE IF NOT EXISTS agent (account TEXT PRIMARY KEY, branch TEXT);"
 
       // queries to create trans
-      val sqlCreateTableTrans = "CREATE TABLE IF NOT EXISTS trans (agent TEXT, timestamp TEXT, account TEXT, amount TEXT, status TEXT, PRIMARY KEY(agent, timestamp));"
+      val sqlCreateTableTrans = "CREATE TABLE IF NOT EXISTS trans (agent TEXT, customer TEXT, amount INT, timestamp TEXT, status TEXT, PRIMARY KEY(agent, timestamp));"
       val sqlCreateIndexTransStatus = "CREATE INDEX trans_status on trans(status);"
     }
 
     override def createAgent(agent: Agent) = {
       // insert query
       val statement = QueryBuilder.insertInto("agent")
-        .value("username", agent.username)
+        .value("account", agent.account)
         .value("branch", agent.branch)
 
       session.execute(statement)
     }
 
-    override def getAgent(username: String): Option[Agent] = {
+    override def getAgent(account: String): Option[Agent] = {
       // select query
       val selectStmt = select().all()
         .from("agent")
-        .where(QueryBuilder.eq("username", username))
+        .where(QueryBuilder.eq("account", account))
         .limit(1)
 
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Agent(row.getString("username"), row.getString("branch")))
+      if (row != null) Some(Agent(row.getString("account"), row.getString("branch")))
       else None
     }
 
@@ -52,9 +52,9 @@ trait CassandraTransDbComp extends TransDbComp {
       // insert query
       val statement = QueryBuilder.insertInto("trans")
         .value("agent", trans.agent)
-        .value("timestamp", trans.timestamp)
-        .value("account", trans.account)
+        .value("customer", trans.customer)
         .value("amount", trans.amount)
+        .value("timestamp", trans.timestamp)
         .value("status", trans.status)
 
       session.execute(statement)
@@ -79,7 +79,7 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Trans(row.getString("agent"), row.getString("timestamp"), row.getString("account"), row.getString("amount"), row.getString("status")))
+      if (row != null) Some(Trans(row.getString("agent"), row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status")))
       else None
     }
   }

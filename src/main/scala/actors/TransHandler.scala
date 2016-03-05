@@ -104,7 +104,8 @@ trait TransHandlerComp {
       }
 
       // update db
-      transDb.updateTrans(Trans(trans.agent, trans.timestamp, trans.account, trans.amount, "DONE"))
+      // TODO update according to the status
+      transDb.updateTrans(Trans(trans.agent, trans.customer, trans.amount, trans.timestamp, "DONE"))
 
       // send status back
       // TODO status according to the response

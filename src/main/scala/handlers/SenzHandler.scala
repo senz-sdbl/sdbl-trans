@@ -61,10 +61,10 @@ class SenzHandler {
       transDb.getTrans(trans.agent, trans.timestamp) match {
         case Some(existingTrans) =>
           // already existing trans
-          logger.debug("Trans exists, no need to recreate: " + "[" + existingTrans.agent + ", " + existingTrans.account + ", " + existingTrans.amount + "]")
+          logger.debug("Trans exists, no need to recreate: " + "[" + existingTrans.agent + ", " + existingTrans.customer + ", " + existingTrans.amount + "]")
         case None =>
           // new trans, so create and process it
-          logger.debug("New Trans, process it: " + "[" + trans.agent + ", " + trans.account + ", " + trans.amount + "]")
+          logger.debug("New Trans, process it: " + "[" + trans.agent + ", " + trans.customer + ", " + trans.amount + "]")
 
           // save in database
           transDb.createTrans(trans)

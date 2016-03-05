@@ -9,11 +9,11 @@ import protocols.{Senz, Trans}
 object TransUtils {
   def getTrans(senz: Senz): Trans = {
     val agent = senz.sender
+    val customer = senz.attributes.getOrElse("acc", "")
+    val amnt = senz.attributes.getOrElse("amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("time", "")
-    val acc = senz.attributes.getOrElse("acc", "")
-    val amnt = senz.attributes.getOrElse("amnt", "")
 
-    Trans(agent, timestamp, acc, amnt, "PENDING")
+    Trans(agent, customer, amnt, timestamp, "PENDING")
   }
 
   def getTransMsg(trans: Trans): TransMsg = {
@@ -32,7 +32,7 @@ object TransUtils {
     val mobileNo = "0775432015" // customers mobile no
     val fromAcc = "343434343434" // TODO trans.agent // from account, bank account, 12 digits
     val toAcc = "646464646464" // TODO trans.account // to account, customer account, 12 digits
-    val amnt = "%012d".format(trans.amount.toInt) // amount, 12 digits
+    val amnt = "%012d".format(trans.amount) // amount, 12 digits
 
     s"$transId$payMode$epinb$offset$mobileNo$fromAcc$toAcc$amnt"
   }

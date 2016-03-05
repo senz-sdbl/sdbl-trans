@@ -32,7 +32,7 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
       logger.debug("InitSender")
 
       // start RegHandler in here
-      val regSenzMsg = SenzUtils.getRegistrationSenzMsg()
+      val regSenzMsg = SenzUtils.getRegistrationSenzMsg
       context.actorOf(RegHandler.props(regSenzMsg), "RegHandler")
     case SenzMsg(msg) =>
       logger.debug("SendMsg: " + msg)

@@ -1,5 +1,5 @@
 package protocols
 
-case class Agent(username: String, branch: String)
+case class Agent(account: String, branch: String)
 
-case class Trans(agent: String, timestamp: String, account: String, amount: String, status: String)
+case class Trans(agent: String, customer: String, amount: Int, timestamp: String, status: String)
