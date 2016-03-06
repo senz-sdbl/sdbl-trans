@@ -7,5 +7,5 @@ object SenzType extends Enumeration {
 
 import SenzType._
 
-case class Senz(senzType: SenzType, sender: String, receiver: String, attributes: scala.collection.mutable.Map[String, String], signature: String)
+case class Senz(senzType: SenzType, sender: String, receiver: String, attributes: scala.collection.mutable.Map[String, String], signature: Option[String])
 

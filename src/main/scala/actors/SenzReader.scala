@@ -2,8 +2,8 @@ package actors
 
 import akka.actor.{Actor, Props}
 import components.CassandraTransDbComp
-import crypto.RSAUtils
 import db.SenzCassandraCluster
+import exceptions.EmptySenzException
 import org.slf4j.LoggerFactory
 import utils.SenzUtils
 
@@ -20,12 +20,12 @@ class SenzReader extends Actor {
 
   def logger = LoggerFactory.getLogger(this.getClass)
 
-  override def preStart = {
+  override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
   }
 
   override def receive: Receive = {
-    case InitReader => {
+    case InitReader =>
       // listen for user inputs form commandline
       while (true) {
         println()
@@ -38,29 +38,23 @@ class SenzReader extends Actor {
         // read user input from the command line
         val inputSenz = scala.io.StdIn.readLine()
 
-        if (!inputSenz.isEmpty) {
-          // sign senz
-          val senzSignature = RSAUtils.signSenz(inputSenz.trim.replaceAll(" ", ""))
-          val signedSenz = s"$inputSenz $senzSignature"
+        logger.debug("Input Senz: " + inputSenz)
 
-          logger.debug("Input Senz: " + inputSenz)
-          logger.debug("Signed Senz: " + signedSenz)
+        // validate senz
+        try {
+          SenzUtils.isValidSenz(inputSenz)
 
-          // validate senz, TODO refactor
-          try {
-            SenzUtils.isValidSenz(signedSenz)
-          } catch {
-            case e: Exception =>
-              logger.error("Invalid senz", e)
-              println("[ERROR: INVALID SENZ]")
-          }
-
+          // handle share
           val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(shareHandlerComp.ShareHandler.props(signedSenz))
-        } else {
-          logger.error("Empty Senz")
+          context.actorOf(shareHandlerComp.ShareHandler.props(inputSenz))
+        } catch {
+          case e: EmptySenzException =>
+            logger.error("Empty senz")
+            println("[ERROR: EMPTY SENZ]")
+          case e: Exception =>
+            logger.error("Invalid senz", e)
+            println("[ERROR: INVALID SENZ]")
         }
       }
-    }
   }
 }

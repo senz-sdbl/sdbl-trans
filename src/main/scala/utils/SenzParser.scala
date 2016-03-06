@@ -10,7 +10,7 @@ object SenzParser {
   def getSenz(senzMsg: String): Senz = {
     val tokens = senzMsg.split(" ")
     val senzType = SenzType.withName(tokens.head)
-    val signature = tokens.last
+    val signature = if (tokens.last.startsWith("^")) None else Some(tokens.last.trim)
     var sender = ""
     var receiver = ""
     val attr = scala.collection.mutable.Map[String, String]()
@@ -56,7 +56,7 @@ object SenzParser {
 }
 
 //object Main extends App {
-//  val senz = SenzParser.getSenz("SHARE #lat #lon sdf @era ^bal signaturesdf")
+//  val senz = SenzParser.getSenz("SHARE #lat #lon sdf @era ^bal")
 //
 //  println(senz.senzType)
 //  println(senz.attributes)
@@ -66,6 +66,4 @@ object SenzParser {
 //
 //  val msg = SenzParser.getSenzMsg(senz)
 //  println(msg)
-//
-//
 //}

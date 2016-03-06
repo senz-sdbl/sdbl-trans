@@ -4,8 +4,10 @@ import java.net.{DatagramPacket, DatagramSocket, InetAddress}
 
 import akka.actor.{Props, Actor}
 import config.Configuration
+import crypto.RSAUtils
 import org.slf4j.LoggerFactory
-import utils.SenzUtils
+import protocols.Senz
+import utils.{SenzParser, SenzUtils}
 
 object SenzSender {
 
@@ -23,27 +25,42 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
 
   def logger = LoggerFactory.getLogger(this.getClass)
 
-  override def preStart = {
-    logger.debug("Start actor: " + context.self.path)
+  override def preStart() = {
+    logger.info("Start actor: " + context.self.path)
   }
 
   override def receive: Receive = {
     case InitSender =>
-      logger.debug("InitSender")
+      logger.info("InitSender")
 
       // start RegHandler in here
       val regSenzMsg = SenzUtils.getRegistrationSenzMsg
       context.actorOf(RegHandler.props(regSenzMsg), "RegHandler")
     case SenzMsg(msg) =>
-      logger.debug("SendMsg: " + msg)
 
-      // TODO sign, encrypt the senz
+      // sign senz
+      val senzSignature = RSAUtils.signSenz(msg.trim.replaceAll(" ", ""))
+      val signedSenz = s"$msg $senzSignature"
 
-      send(msg)
+      logger.info("Senz: " + msg)
+      logger.info("Signed senz: " + signedSenz)
+
+      send(signedSenz)
+    case senz: Senz =>
+
+      // sign senz
+      val msg = SenzParser.getSenzMsg(senz)
+      val signature = RSAUtils.signSenz(msg.trim.replaceAll(" ", ""))
+      val signedSenz = s"$msg $signature"
+
+      logger.info(s"Senz: ${senz.senzType} ^${senz.sender} @${senz.receiver} ${senz.attributes} ")
+      logger.info("Signed senz: " + signedSenz)
+
+      send(signedSenz)
   }
 
   def send(msg: String) = {
-    logger.debug("Sending SenzMsg: " + msg)
+    logger.info("Sending SenzMsg: " + msg)
 
     val senzOut = new DatagramPacket(msg.getBytes, msg.getBytes.length, InetAddress.getByName(switchHost), switchPort)
     socket.send(senzOut)

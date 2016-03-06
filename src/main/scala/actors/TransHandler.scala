@@ -9,7 +9,6 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import components.TransDbComp
 import config.Configuration
-import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 import protocols.Trans
 import utils.TransUtils
@@ -110,10 +109,7 @@ trait TransHandlerComp {
       // send status back
       // TODO status according to the response
       val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
-      val senzSignature = RSAUtils.signSenz(senz.trim.replaceAll(" ", ""))
-      val signedSenz = s"$senz $senzSignature"
-
-      senzSender ! SenzMsg(signedSenz)
+      senzSender ! SenzMsg(senz)
 
       // disconnect from tcp
       connection ! Close

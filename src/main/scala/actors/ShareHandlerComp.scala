@@ -39,17 +39,13 @@ trait ShareHandlerComp {
     // send timeout message after 12 seconds
     val timeoutCancellable = system.scheduler.scheduleOnce(10 seconds, self, ShareTimeout)
 
-    override def preStart = {
+    override def preStart() = {
       logger.debug("Start actor: " + context.self.path)
     }
 
     override def receive: Receive = {
       case Share(senzMsg) =>
         logger.debug("SHARE received: " + senzMsg)
-
-        // parse senz
-        val senz = SenzParser.getSenz(senzMsg)
-        transDb.createAgent(Agent(senz.receiver, senz.receiver))
 
         // TODO only share senz, if senz not already shared with given agent
         senzSender ! SenzMsg(senzMsg)

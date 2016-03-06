@@ -43,7 +43,7 @@ class RegHandler(senzMsg: String) extends Actor with Configuration {
 
   def logger = LoggerFactory.getLogger(this.getClass)
 
-  override def preStart = {
+  override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
   }
 

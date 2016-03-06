@@ -25,12 +25,12 @@ class SenzListener(socket: DatagramSocket) extends Actor {
 
   def logger = LoggerFactory.getLogger(this.getClass)
 
-  override def preStart = {
+  override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
   }
 
   override def receive: Receive = {
-    case InitListener => {
+    case InitListener =>
       logger.debug("InitListener")
 
       val buf = new Array[Byte](1024)
@@ -49,6 +49,5 @@ class SenzListener(socket: DatagramSocket) extends Actor {
         val senz = SenzParser.getSenz(msg)
         senzHandler.Handler.handle(senz)
       }
-    }
   }
 }
