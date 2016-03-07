@@ -30,8 +30,13 @@ WORKDIR /app
 
 # copy file
 ADD target/scala-2.11/sdbl-trans-assembly-1.0.jar trans.jar
+
+# logs volume
 RUN mkdir logs
 VOLUME ["/app/logs"]
+
+# .keys volume
+VOLUME ["/app/.keys"]
 
 # command
 ENTRYPOINT [ "java", "-jar", "/app/trans.jar" ]

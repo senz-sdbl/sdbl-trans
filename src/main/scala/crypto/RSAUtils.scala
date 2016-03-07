@@ -17,6 +17,11 @@ object RSAUtils extends Configuration {
     val dir: File = new File(keysDir)
     if (!dir.exists) {
       dir.mkdir
+    }
+
+    // generate keys if not exists
+    val filePublicKey = new File(publicKeyLocation)
+    if (!filePublicKey.exists) {
       generateRSAKeyPair()
     }
   }
