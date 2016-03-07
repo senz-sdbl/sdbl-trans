@@ -14,25 +14,20 @@ trait Configuration {
   val config = ConfigFactory.load()
 
   // senz config
-  lazy val switchName = Try(config.getString("senz.switch-name")).getOrElse("")
-  lazy val clientName = Try(config.getString("senz.client-name")).getOrElse("")
+  lazy val switchName = Try(config.getString("senz.switch-name")).getOrElse("mysensors")
+  lazy val clientName = Try(config.getString("senz.client-name")).getOrElse("sdbltrans")
 
   // server config
   lazy val switchHost = Try(config.getString("switch.host")).getOrElse("localhost")
-  lazy val switchPort = Try(config.getInt("switch.port")).getOrElse(9999)
+  lazy val switchPort = Try(config.getInt("switch.port")).getOrElse(9090)
 
   // epic config
   lazy val epicHost = Try(config.getString("epic.host")).getOrElse("localhost")
   lazy val epicPort = Try(config.getInt("epic.port")).getOrElse(8080)
 
-  // mongodb config
-  lazy val mongodbHost = Try(config.getString("db.mongo.host")).getOrElse("dev.localhost")
-  lazy val mongodbPort = Try(config.getInt("db.mongo.port")).getOrElse(27017)
-  lazy val mongodbName = Try(config.getString("db.mongo.name")).getOrElse("senz")
-
-  // cassandra config
+  // cassandra db config
   lazy val cassandraHost = Try(config.getString("db.cassandra.host")).getOrElse("localhost")
-  lazy val cassandraKeyspace = Try(config.getString("db.cassandra.keyspace")).getOrElse("senz")
+  lazy val cassandraPort = Try(config.getInt("db.cassandra.port")).getOrElse(9160)
 
   // keys config
   lazy val keysDir = Try(config.getString("keys.dir")).getOrElse(".keys")
