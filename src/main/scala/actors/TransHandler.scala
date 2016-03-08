@@ -1,6 +1,7 @@
 package actors
 
 import java.net.{InetAddress, InetSocketAddress}
+import java.nio.charset.Charset
 
 import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, ActorRef, Props}
@@ -56,12 +57,12 @@ trait TransHandlerComp {
         // transMsg from trans
         val transMsg = TransUtils.getTransMsg(trans)
 
-        logger.debug("Send TransMsg " + transMsg.msg)
+        logger.debug("Send TransMsg " + new String(transMsg, "UTF-8"))
 
         // send TransMsg
         val connection = sender()
         connection ! Register(self)
-        connection ! Write(ByteString(transMsg.msg))
+        connection ! Write(ByteString(transMsg))
 
         // handler response
         context become {
@@ -81,10 +82,10 @@ trait TransHandlerComp {
           case TransTimeout =>
             // timeout
             logger.error("TransTimeout")
-            logger.debug("Resend TransMsg " + transMsg.msg)
+            logger.debug("Resend TransMsg " + transMsg)
 
             // resend trans
-            connection ! Write(ByteString(transMsg.msg))
+            connection ! Write(ByteString(transMsg))
         }
       case CommandFailed(_: Connect) =>
         // failed to connect

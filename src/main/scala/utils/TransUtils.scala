@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import actors.{TransResp, TransMsg}
+import example.TestUtils
 import protocols.{Senz, Trans}
 
 object TransUtils {
@@ -16,12 +17,18 @@ object TransUtils {
     Trans(agent, customer, amnt, timestamp, "PENDING")
   }
 
-  def getTransMsg(trans: Trans): TransMsg = {
-    val msg = generateFundTransferMsg(trans)
-    val msgLen = f"${Integer.toHexString(msg.length).toUpperCase}%4s".replaceAll(" ", "0")
-    val esh = generateEsh(msgLen)
+  def getTransMsg(trans: Trans) = {
+    val fundTranMsg = generateFundTransferMsg(trans)
+    val esh = generateEsh()
+    val msg = s"$esh$fundTranMsg"
+    val msgLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
 
-    TransMsg(s"$esh$msg")
+    msg.getBytes ++ msg.getBytes
+
+    val m = TestUtils.getMessageWithHeader(msg.getBytes)
+    m
+
+    //TransMsg(s"$msgLen$msg")
   }
 
   def generateFundTransferMsg(trans: Trans) = {
@@ -32,13 +39,13 @@ object TransUtils {
     val mobileNo = "0775432015" // customers mobile no
     val fromAcc = "343434343434" // TODO trans.agent // from account, bank account, 12 digits
     val toAcc = "646464646464" // TODO trans.account // to account, customer account, 12 digits
-    val amnt = "%012d".format(trans.amount) // amount, 12 digits
+    //val amnt = "%012d".format(trans.amount) // amount, 12 digits
+    val amnt = trans.amount // amount, 12 digits
 
     s"$transId$payMode$epinb$offset$mobileNo$fromAcc$toAcc$amnt"
   }
 
-  def generateEsh(msgLen: String) = {
-    val l = msgLen // fund transfer message length (0000-FFFF)
+  def generateEsh() = {
     val a = "MOB" // incoming channel mode[mobile]
     val b = "01" // transaction process type[financial]
     val c = "04" // transaction code[fund transfer]
@@ -49,7 +56,7 @@ object TransUtils {
     val h = "0001" // application ID, 4 digits
     val i = "0000000000000000" // private data, 16 digits
 
-    s"$l$a$b$c$d$e$f$g$h$i"
+    s"$a$b$c$d$e$f$g$h$i"
   }
 
   def getTransTime = {
@@ -61,6 +68,14 @@ object TransUtils {
 
   def getTransResp(response: String) = {
     TransResp(response.substring(0, 70), response.substring(70, 72), response.substring(72))
+  }
+
+  def getMsgHeader(msg: String) = {
+    val hexLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
+
+    val first = Integer.parseInt(hexLen.substring(0, 2), 16).toByte
+    val second = Integer.parseInt(hexLen.substring(2, 4), 16).toByte
+    Array(first, second)
   }
 
 }
