@@ -1,7 +1,6 @@
 package actors
 
 import java.net.{InetAddress, InetSocketAddress}
-import java.nio.charset.Charset
 
 import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, ActorRef, Props}
@@ -16,7 +15,7 @@ import utils.TransUtils
 
 import scala.concurrent.duration._
 
-case class TransMsg(msg: String)
+case class TransMsg(msgStream: Array[Byte])
 
 case class TransResp(esh: String, status: String, rst: String)
 
@@ -56,13 +55,14 @@ trait TransHandlerComp {
 
         // transMsg from trans
         val transMsg = TransUtils.getTransMsg(trans)
+        val msgStream = new String(transMsg.msgStream)
 
-        logger.debug("Send TransMsg " + new String(transMsg, "UTF-8"))
+        logger.debug("Send TransMsg " + msgStream)
 
         // send TransMsg
         val connection = sender()
         connection ! Register(self)
-        connection ! Write(ByteString(transMsg))
+        connection ! Write(ByteString(transMsg.msgStream))
 
         // handler response
         context become {
@@ -82,10 +82,10 @@ trait TransHandlerComp {
           case TransTimeout =>
             // timeout
             logger.error("TransTimeout")
-            logger.debug("Resend TransMsg " + transMsg)
+            logger.debug("Resend TransMsg " + msgStream)
 
             // resend trans
-            connection ! Write(ByteString(transMsg))
+            connection ! Write(ByteString(transMsg.msgStream))
         }
       case CommandFailed(_: Connect) =>
         // failed to connect

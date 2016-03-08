@@ -3,8 +3,7 @@ package utils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import actors.{TransResp, TransMsg}
-import example.TestUtils
+import actors.{TransMsg, TransResp}
 import protocols.{Senz, Trans}
 
 object TransUtils {
@@ -18,20 +17,15 @@ object TransUtils {
   }
 
   def getTransMsg(trans: Trans) = {
-    val fundTranMsg = generateFundTransferMsg(trans)
+    val fundTranMsg = generateFundTransMsg(trans)
     val esh = generateEsh()
     val msg = s"$esh$fundTranMsg"
-    val msgLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
+    val header = generateHeader(msg)
 
-    msg.getBytes ++ msg.getBytes
-
-    val m = TestUtils.getMessageWithHeader(msg.getBytes)
-    m
-
-    //TransMsg(s"$msgLen$msg")
+    TransMsg(header ++ msg.getBytes)
   }
 
-  def generateFundTransferMsg(trans: Trans) = {
+  def generateFundTransMsg(trans: Trans) = {
     val transId = "0000000000000001" // transaction ID, 16 digits // TODO generate unique value
     val payMode = "02" // pay mode
     val epinb = "ffffffffffffffff" // ePINB, 16 digits
@@ -46,7 +40,7 @@ object TransUtils {
   }
 
   def generateEsh() = {
-    val a = "MOB" // incoming channel mode[mobile]
+    val a = "SMS" // incoming channel mode[mobile]
     val b = "01" // transaction process type[financial]
     val c = "04" // transaction code[fund transfer]
     val d = "00000002" // TID, 8 digits TODO in prod 00000001
@@ -66,16 +60,16 @@ object TransUtils {
     format.format(now)
   }
 
-  def getTransResp(response: String) = {
-    TransResp(response.substring(0, 70), response.substring(70, 72), response.substring(72))
-  }
-
-  def getMsgHeader(msg: String) = {
+  def generateHeader(msg: String) = {
     val hexLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
 
     val first = Integer.parseInt(hexLen.substring(0, 2), 16).toByte
     val second = Integer.parseInt(hexLen.substring(2, 4), 16).toByte
     Array(first, second)
+  }
+
+  def getTransResp(response: String) = {
+    TransResp(response.substring(0, 70), response.substring(70, 72), response.substring(72))
   }
 
 }
