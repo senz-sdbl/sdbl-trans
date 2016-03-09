@@ -18,7 +18,7 @@ object TransUtils {
 
   def getTransMsg(trans: Trans) = {
     val fundTranMsg = generateFundTransMsg(trans)
-    val esh = generateEsh()
+    val esh = generateEsh
     val msg = s"$esh$fundTranMsg"
     val header = generateHeader(msg)
 
@@ -39,7 +39,7 @@ object TransUtils {
     s"$transId$payMode$epinb$offset$mobileNo$fromAcc$toAcc$amnt"
   }
 
-  def generateEsh() = {
+  def generateEsh = {
     val a = "SMS" // incoming channel mode[mobile]
     val b = "01" // transaction process type[financial]
     val c = "04" // transaction code[fund transfer]
@@ -53,19 +53,18 @@ object TransUtils {
     s"$a$b$c$d$e$f$g$h$i"
   }
 
+  def generateHeader(msg: String) = {
+    val hexLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
+
+    // convert hex to bytes
+    hexLen.replaceAll("[^0-9A-Fa-f]", "").sliding(2, 2).toArray.map(Integer.parseInt(_, 16).toByte)
+  }
+
   def getTransTime = {
     val now = Calendar.getInstance().getTime
     val format = new SimpleDateFormat("MMddhhmmss")
 
     format.format(now)
-  }
-
-  def generateHeader(msg: String) = {
-    val hexLen = f"${Integer.toHexString(msg.getBytes.length).toUpperCase}%4s".replaceAll(" ", "0")
-
-    val first = Integer.parseInt(hexLen.substring(0, 2), 16).toByte
-    val second = Integer.parseInt(hexLen.substring(2, 4), 16).toByte
-    Array(first, second)
   }
 
   def getTransResp(response: String) = {

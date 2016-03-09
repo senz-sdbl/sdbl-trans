@@ -53,6 +53,8 @@ trait ShareHandlerComp {
         // success
         logger.debug("ShareDone")
 
+        println("[OK] SHARE DONE")
+
         // cancel timers
         shareCancellable.cancel()
         timeoutCancellable.cancel()
@@ -66,12 +68,14 @@ trait ShareHandlerComp {
       case ShareFail =>
         // fail
         logger.error("ShareFail")
+        println("[ERROR] SHARE FAIL")
 
         shareCancellable.cancel()
         timeoutCancellable.cancel()
         context.stop(self)
       case SignatureVerificationFail =>
         logger.error("Signature verification fail")
+        println("[ERROR] SIGNATURE VERIFICATION FAIL")
 
         // cancel scheduler
         shareCancellable.cancel()
@@ -81,6 +85,7 @@ trait ShareHandlerComp {
         context.stop(self)
       case ShareTimeout =>
         logger.error("Timeout")
+        println("[ERROR] SHARE FAIL, TIMEOUT")
 
         // cancel scheduler
         shareCancellable.cancel()
