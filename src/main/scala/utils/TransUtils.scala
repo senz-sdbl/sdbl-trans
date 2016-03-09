@@ -33,8 +33,8 @@ object TransUtils {
     val mobileNo = "0775432015" // customers mobile no
     val fromAcc = "343434343434" // TODO trans.agent // from account, bank account, 12 digits
     val toAcc = "646464646464" // TODO trans.account // to account, customer account, 12 digits
-    //val amnt = "%012d".format(trans.amount) // amount, 12 digits
-    val amnt = trans.amount // amount, 12 digits
+    val amnt = "%012d".format(trans.amount) // amount, 12 digits
+    //val amnt = trans.amount // amount, 12 digits
 
     s"$transId$payMode$epinb$offset$mobileNo$fromAcc$toAcc$amnt"
   }

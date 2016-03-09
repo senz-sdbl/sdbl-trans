@@ -72,13 +72,16 @@ trait TransHandlerComp {
             val response = data.decodeString("UTF-8")
             logger.debug("Received : " + response)
 
+            // cancel timer
+            timeoutCancellable.cancel()
+
             handleResponse(response, connection)
           case "close" =>
             logger.debug("Close")
             connection ! Close
           case _: ConnectionClosed =>
             logger.debug("ConnectionClosed")
-            context stop self
+            context.stop(self)
           case TransTimeout =>
             // timeout
             logger.error("TransTimeout")
