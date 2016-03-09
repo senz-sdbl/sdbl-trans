@@ -1,6 +1,8 @@
 # Build docker images
-1. sbt assembly
-2. docker build -t senz/sdbl-trans .
+```
+sbt assembly
+docker build -t senz/sdbl-trans .
+```
 
 # Run with docker
 ```
