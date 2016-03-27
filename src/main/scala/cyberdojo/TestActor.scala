@@ -1,4 +1,4 @@
-package actors
+package cyberdojo
 
 import akka.actor.{Actor, Kill}
 

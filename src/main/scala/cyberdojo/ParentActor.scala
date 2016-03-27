@@ -1,7 +1,7 @@
-package actors
+package cyberdojo
 
 import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{Props, OneForOneStrategy, Actor}
+import akka.actor.{Actor, OneForOneStrategy, Props}
 import org.slf4j.LoggerFactory
 
 class ParentActor extends Actor {

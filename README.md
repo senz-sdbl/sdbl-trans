@@ -12,6 +12,7 @@ docker run -it \
 -e EPIC_HOST=220.247.245.88 \
 -e EPIC_PORT=8200 \
 -e CASSANDRA_HOST=10.2.2.23 \
+-e CASSANDRA_PORT=9042 \
 -v /Users/eranga/sdbl/trans/logs:/app/logs:rw \
 -v /Users/eranga/sdbl/trans/.keys:/app/.keys:rw \
 senz/sdbl-trans
