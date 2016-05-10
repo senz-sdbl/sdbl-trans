@@ -2,11 +2,13 @@ package actors
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
 
-import akka.actor.{Props, Actor}
+import akka.actor.SupervisorStrategy.{Stop, Resume, Restart}
+import akka.actor.{OneForOneStrategy, Props, Actor}
 import config.Configuration
 import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 import protocols.Senz
+import supervision.{StopMeException, ResumeMeException, RestartMeException}
 import utils.{SenzParser, SenzUtils}
 
 object SenzSender {
@@ -27,6 +29,21 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
 
   override def preStart() = {
     logger.info("Start actor: " + context.self.path)
+  }
+
+  override def supervisorStrategy = OneForOneStrategy() {
+    case _: RestartMeException =>
+      println("Restart child")
+      Restart
+    case _: ResumeMeException =>
+      println("Resume child")
+      Resume
+    case _: StopMeException =>
+      println("Stop child")
+      Stop
+    case _: Exception =>
+      println("Exception caught")
+      Stop
   }
 
   override def receive: Receive = {

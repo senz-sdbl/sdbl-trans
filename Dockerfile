@@ -12,7 +12,7 @@ RUN apt-get update -y
 # install java
 RUN echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN apt-get install -y oracle-java7-installer
-RUN rm -rf /var/lib/apt/lists/* 
+RUN rm -rf /var/lib/apt/lists/*
 RUN rm -rf /var/cache/oracle-jdk7-installer
 
 # set JAVA_HOME
@@ -26,6 +26,7 @@ ENV EPIC_PORT 8080
 ENV CASSANDRA_HOST dev.localhost
 ENV CASSANDRA_PORT 9090
 
+# working directory
 WORKDIR /app
 
 # copy file
