@@ -27,34 +27,34 @@ class SenzReader extends Actor {
   override def receive: Receive = {
     case InitReader =>
       // listen for user inputs form commandline
-      while (true) {
-        println()
-        println()
-        println("-----------------------------------------------")
-        println("ENTER #SENZ[SHARE #acc #amnt @agent ^sdbltrans]")
-        println("-----------------------------------------------")
-        println()
+      println()
+      println()
+      println("-----------------------------------------------")
+      println("ENTER #SENZ[SHARE #acc #amnt @agent ^sdbltrans]")
+      println("-----------------------------------------------")
+      println()
 
-        // read user input from the command line
-        val inputSenz = scala.io.StdIn.readLine()
+      // read user input from the command line
+      val inputSenz = scala.io.StdIn.readLine()
 
-        logger.debug("Input Senz: " + inputSenz)
+      logger.debug("Input Senz: " + inputSenz)
 
-        // validate senz
-        try {
-          SenzUtils.isValidSenz(inputSenz)
+      // validate senz
+      try {
+        SenzUtils.isValidSenz(inputSenz)
 
-          // handle share
-          val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(shareHandlerComp.ShareHandler.props(inputSenz))
-        } catch {
-          case e: EmptySenzException =>
-            logger.error("Empty senz")
-            println("[ERROR: EMPTY SENZ]")
-          case e: Exception =>
-            logger.error("Invalid senz", e)
-            println("[ERROR: INVALID SENZ]")
-        }
+        // handle share
+        val shareHandlerComp = new ShareHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+        context.actorOf(shareHandlerComp.ShareHandler.props(inputSenz))
+      } catch {
+        case e: EmptySenzException =>
+          logger.error("Empty senz")
+          println("[ERROR: EMPTY SENZ]")
+          self ! InitReader
+        case e: Exception =>
+          logger.error("Invalid senz", e)
+          println("[ERROR: INVALID SENZ]")
+          self ! InitReader
       }
   }
 }

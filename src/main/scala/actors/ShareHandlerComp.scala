@@ -1,5 +1,6 @@
 package actors
 
+import actors.SenzReader.InitReader
 import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, Props}
 import components.TransDbComp
@@ -32,6 +33,7 @@ trait ShareHandlerComp {
     def logger = LoggerFactory.getLogger(this.getClass)
 
     val senzSender = context.actorSelection("/user/SenzSender")
+    val senzReader = context.actorSelection("/user/SenzReader")
 
     // send regSenz in every 4 seconds
     val shareCancellable = system.scheduler.schedule(0 milliseconds, 4 seconds, self, Share(senzMsg))
@@ -64,14 +66,24 @@ trait ShareHandlerComp {
         val senz = SenzParser.getSenz(senzMsg)
         transDb.createAgent(Agent(senz.receiver, senz.receiver))
 
+        // reinitialize reader
+        senzReader ! InitReader
+
+        // stop the actor
         context.stop(self)
       case ShareFail =>
         // fail
         logger.error("ShareFail")
         println("[ERROR] SHARE FAIL")
 
+        // cancel timers
         shareCancellable.cancel()
         timeoutCancellable.cancel()
+
+        // reinitialize reader
+        senzReader ! InitReader
+
+        // stop the actor
         context.stop(self)
       case SignatureVerificationFail =>
         logger.error("Signature verification fail")
@@ -80,6 +92,8 @@ trait ShareHandlerComp {
         // cancel scheduler
         shareCancellable.cancel()
         timeoutCancellable.cancel()
+
+        senzReader ! InitReader
 
         // stop the actor
         context.stop(self)
@@ -90,6 +104,9 @@ trait ShareHandlerComp {
         // cancel scheduler
         shareCancellable.cancel()
         timeoutCancellable.cancel()
+
+        // reinitialize reader
+        senzReader ! InitReader
 
         // stop the actor
         context.stop(self)
