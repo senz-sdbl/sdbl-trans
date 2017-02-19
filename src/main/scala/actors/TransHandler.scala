@@ -36,7 +36,7 @@ trait TransHandlerComp {
     def logger = LoggerFactory.getLogger(this.getClass)
 
     // we need senz sender to send reply back
-    val senzSender = context.actorSelection("/user/SenzSender")
+    val senzActor = context.actorSelection("/user/SenzActor")
 
     // handle timeout in 5 seconds
     val timeoutCancellable = system.scheduler.scheduleOnce(5 seconds, self, TransTimeout)
@@ -113,7 +113,7 @@ trait TransHandlerComp {
       // send status back
       // TODO status according to the response
       val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
-      senzSender ! SenzMsg(senz)
+      senzActor ! SenzMsg(senz)
 
       // disconnect from tcp
       connection ! Close

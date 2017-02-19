@@ -13,7 +13,7 @@ import db.SenzCassandraCluster
 import handlers.SenzHandler
 import org.slf4j.LoggerFactory
 import protocols.{Senz, SenzType}
-import utils.{SenzParser, SenzUtils}
+import utils.{SenzParser, SenzUtils, TransUtils}
 
 object SenzActor {
 
@@ -71,7 +71,6 @@ class SenzActor extends Actor with Configuration {
       // wait for REG status
       // parse senz first
       val senz = SenzParser.getSenz(senzMsg)
-      senzHandler.Handler.handle(senz)
       senz match {
         case Senz(SenzType.DATA, `switchName`, receiver, attr, signature) =>
           attr.get("msg") match {
@@ -92,7 +91,7 @@ class SenzActor extends Actor with Configuration {
               logger.error("UNSUPPORTED DATA message " + other)
           }
         case any =>
-          logger.debug(s"Not support other messages $any this stats")
+          logger.debug(s"Not support other messages $data this stats")
       }
   }
 
@@ -103,10 +102,18 @@ class SenzActor extends Actor with Configuration {
       val senzMsg = data.decodeString("UTF-8")
       logger.debug("Received senzMsg : " + senzMsg)
 
-      // handle received senz
+      // only handle trans here
       // parse senz first
       val senz = SenzParser.getSenz(senzMsg)
-      senzHandler.Handler.handle(senz)
+      senz match {
+        case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
+          // handle transaction request via trans actor
+          val trans = TransUtils.getTrans(senz)
+          val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+          context.actorOf(transHandlerComp.TransHandler.props(trans))
+        case any =>
+          logger.debug(s"Not support other messages $data this stats")
+      }
     case _: ConnectionClosed =>
       logger.debug("ConnectionClosed")
       context.stop(self)
@@ -120,4 +127,5 @@ class SenzActor extends Actor with Configuration {
 
       connection ! Write(ByteString(signedSenz))
   }
+
 }
