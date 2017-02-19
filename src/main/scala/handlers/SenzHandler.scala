@@ -1,12 +1,11 @@
 package handlers
 
-import actors.RegHandler.{RegDone, RegFail, Registered}
 import actors._
 import akka.actor.ActorContext
 import components.{CassandraTransDbComp, TransDbComp}
 import db.SenzCassandraCluster
 import org.slf4j.LoggerFactory
-import protocols.{Senz, SenzType, SignatureVerificationFail}
+import protocols.{Senz, SenzType}
 import utils.TransUtils
 
 class SenzHandler {
@@ -76,25 +75,7 @@ class SenzHandler {
     }
 
     def handleData(senz: Senz)(implicit context: ActorContext) = {
-      val regActor = context.actorSelection("/user/SenzSender/RegHandler")
-      val agentRegActor = context.actorSelection("/user/SenzReader/*")
 
-      senz.attributes.get("msg") match {
-        case Some("ShareDone") =>
-          agentRegActor ! ShareDone
-        case Some("ShareFail") =>
-          agentRegActor ! ShareFail
-        case Some("REGISTRATION_DONE") =>
-          regActor ! RegDone
-        case Some("REGISTRATION_FAIL") =>
-          regActor ! RegFail
-        case Some("ALREADY_REGISTERED") =>
-          regActor ! Registered
-        case Some("SignatureVerificationFailed") =>
-          context.actorSelection("/user/Senz*") ! SignatureVerificationFail
-        case other =>
-          logger.error("UNSUPPORTED DATA message " + other)
-      }
     }
   }
 
