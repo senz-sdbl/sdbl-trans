@@ -2,13 +2,12 @@ package actors
 
 import java.net.{DatagramPacket, DatagramSocket, InetAddress}
 
-import akka.actor.SupervisorStrategy.{Stop, Resume, Restart}
-import akka.actor.{OneForOneStrategy, Props, Actor}
+import akka.actor.SupervisorStrategy.Stop
+import akka.actor.{Actor, OneForOneStrategy, Props}
 import config.Configuration
 import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 import protocols.Senz
-import supervision.{StopMeException, ResumeMeException, RestartMeException}
 import utils.{SenzParser, SenzUtils}
 
 object SenzSender {
@@ -32,15 +31,6 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
   }
 
   override def supervisorStrategy = OneForOneStrategy() {
-    case _: RestartMeException =>
-      println("Restart child")
-      Restart
-    case _: ResumeMeException =>
-      println("Resume child")
-      Resume
-    case _: StopMeException =>
-      println("Stop child")
-      Stop
     case _: Exception =>
       println("Exception caught")
       Stop
@@ -66,7 +56,7 @@ class SenzSender(socket: DatagramSocket) extends Actor with Configuration {
     case senz: Senz =>
 
       // sign senz
-      val msg = SenzParser.getSenzMsg(senz)
+      val msg = SenzParser.composeSenz(senz)
       val signature = RSAUtils.signSenz(msg.trim.replaceAll(" ", ""))
       val signedSenz = s"$msg $signature"
 

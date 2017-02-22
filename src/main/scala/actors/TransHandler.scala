@@ -76,9 +76,6 @@ trait TransHandlerComp {
             timeoutCancellable.cancel()
 
             handleResponse(response, connection)
-          case "close" =>
-            logger.debug("Close")
-            connection ! Close
           case _: ConnectionClosed =>
             logger.debug("ConnectionClosed")
             context.stop(self)

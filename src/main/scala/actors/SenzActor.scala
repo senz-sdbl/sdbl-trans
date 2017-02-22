@@ -52,7 +52,12 @@ class SenzActor extends Actor with Configuration {
 
       // send reg message
       val regSenzMsg = SenzUtils.getRegistrationSenzMsg
-      connection ! Write(ByteString(regSenzMsg))
+      val senzSignature = RSAUtils.signSenz(regSenzMsg.trim.replaceAll(" ", ""))
+      val signedSenz = s"$regSenzMsg $senzSignature"
+
+      logger.info("Signed senz: " + signedSenz)
+
+      connection ! Write(ByteString(s"$signedSenz;"))
 
       // wait register
       context.become(registering(connection))
@@ -68,30 +73,32 @@ class SenzActor extends Actor with Configuration {
       val senzMsg = data.decodeString("UTF-8")
       logger.debug("Received senzMsg : " + senzMsg)
 
-      // wait for REG status
-      // parse senz first
-      val senz = SenzParser.getSenz(senzMsg)
-      senz match {
-        case Senz(SenzType.DATA, `switchName`, receiver, attr, signature) =>
-          attr.get("msg") match {
-            case Some("REG_DONE") =>
-              logger.info("Registration done")
+      if (!senzMsg.equalsIgnoreCase("TIK;")) {
+        // wait for REG status
+        // parse senz first
+        val senz = SenzParser.parseSenz(senzMsg)
+        senz match {
+          case Senz(SenzType.DATA, `switchName`, receiver, attr, signature) =>
+            attr.get("#status") match {
+              case Some("REG_DONE") =>
+                logger.info("Registration done")
 
-              // senz listening
-              context.become(listening(connection))
-            case Some("REG_ALR") =>
-              logger.info("Already registered, continue system")
+                // senz listening
+                context.become(listening(connection))
+              case Some("REG_ALR") =>
+                logger.info("Already registered, continue system")
 
-              // senz listening
-              context.become(listening(connection))
-            case Some("REG_FAIL") =>
-              logger.error("Registration fail, stop system")
-              context.stop(self)
-            case other =>
-              logger.error("UNSUPPORTED DATA message " + other)
-          }
-        case any =>
-          logger.debug(s"Not support other messages $data this stats")
+                // senz listening
+                context.become(listening(connection))
+              case Some("REG_FAIL") =>
+                logger.error("Registration fail, stop system")
+                context.stop(self)
+              case other =>
+                logger.error("UNSUPPORTED DATA message " + other)
+            }
+          case any =>
+            logger.debug(s"Not support other messages $senzMsg this stats")
+        }
       }
   }
 
@@ -102,17 +109,19 @@ class SenzActor extends Actor with Configuration {
       val senzMsg = data.decodeString("UTF-8")
       logger.debug("Received senzMsg : " + senzMsg)
 
-      // only handle trans here
-      // parse senz first
-      val senz = SenzParser.getSenz(senzMsg)
-      senz match {
-        case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
-          // handle transaction request via trans actor
-          val trans = TransUtils.getTrans(senz)
-          val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-          context.actorOf(transHandlerComp.TransHandler.props(trans))
-        case any =>
-          logger.debug(s"Not support other messages $data this stats")
+      if (!senzMsg.equalsIgnoreCase("TIK;")) {
+        // only handle trans here
+        // parse senz first
+        val senz = SenzParser.parseSenz(senzMsg)
+        senz match {
+          case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
+            // handle transaction request via trans actor
+            val trans = TransUtils.getTrans(senz)
+            val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
+            context.actorOf(transHandlerComp.TransHandler.props(trans))
+          case any =>
+            logger.debug(s"Not support other messages $senzMsg this stats")
+        }
       }
     case _: ConnectionClosed =>
       logger.debug("ConnectionClosed")
@@ -125,7 +134,7 @@ class SenzActor extends Actor with Configuration {
       logger.info("Senz: " + msg)
       logger.info("Signed senz: " + signedSenz)
 
-      connection ! Write(ByteString(signedSenz))
+      connection ! Write(ByteString(s"$signedSenz;"))
   }
 
 }

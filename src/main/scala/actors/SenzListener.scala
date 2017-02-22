@@ -46,7 +46,7 @@ class SenzListener(socket: DatagramSocket) extends Actor {
 
         // handle received senz
         // parse senz first
-        val senz = SenzParser.getSenz(msg)
+        val senz = SenzParser.parseSenz(msg)
         senzHandler.Handler.handle(senz)
       }
   }

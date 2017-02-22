@@ -14,7 +14,7 @@ trait Configuration {
   val config = ConfigFactory.load()
 
   // senz config
-  lazy val switchName = Try(config.getString("senz.switch-name")).getOrElse("mysensors")
+  lazy val switchName = Try(config.getString("senz.switch-name")).getOrElse("senzswitch")
   lazy val clientName = Try(config.getString("senz.client-name")).getOrElse("sdbltrans")
 
   // server config
