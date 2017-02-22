@@ -12,7 +12,7 @@ import crypto.RSAUtils
 import db.SenzCassandraCluster
 import handlers.SenzHandler
 import org.slf4j.LoggerFactory
-import protocols.{Senz, SenzType}
+import protocols.{Msg, Senz, SenzType}
 import utils.{SenzParser, SenzUtils, TransUtils}
 
 object SenzActor {
@@ -27,7 +27,6 @@ object SenzActor {
 
 class SenzActor extends Actor with Configuration {
 
-  import SenzActor._
   import context._
 
   def logger = LoggerFactory.getLogger(this.getClass)
@@ -126,7 +125,7 @@ class SenzActor extends Actor with Configuration {
     case _: ConnectionClosed =>
       logger.debug("ConnectionClosed")
       context.stop(self)
-    case SenzMsg(msg) =>
+    case Msg(msg) =>
       // sign senz
       val senzSignature = RSAUtils.signSenz(msg.trim.replaceAll(" ", ""))
       val signedSenz = s"$msg $senzSignature"

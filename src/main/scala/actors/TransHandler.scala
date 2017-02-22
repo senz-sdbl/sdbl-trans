@@ -2,7 +2,6 @@ package actors
 
 import java.net.{InetAddress, InetSocketAddress}
 
-import actors.SenzSender.SenzMsg
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
@@ -10,7 +9,7 @@ import akka.util.ByteString
 import components.TransDbComp
 import config.Configuration
 import org.slf4j.LoggerFactory
-import protocols.Trans
+import protocols.{Msg, Trans}
 import utils.TransUtils
 
 import scala.concurrent.duration._
@@ -110,7 +109,7 @@ trait TransHandlerComp {
       // send status back
       // TODO status according to the response
       val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
-      senzActor ! SenzMsg(senz)
+      senzActor ! Msg(senz)
 
       // disconnect from tcp
       connection ! Close
