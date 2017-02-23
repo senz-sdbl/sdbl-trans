@@ -5,8 +5,8 @@ import crypto.RSAUtils
 import exceptions.EmptySenzException
 
 /**
- * Created by eranga on 1/11/16.
- */
+  * Created by eranga on 1/11/16.
+  */
 object SenzUtils extends Configuration {
   def isValidSenz(msg: String) = {
     if (msg == null || msg.isEmpty)
@@ -20,7 +20,7 @@ object SenzUtils extends Configuration {
     val publicKey = RSAUtils.loadRSAPublicKey()
     val timestamp = (System.currentTimeMillis / 1000).toString
     val receiver = switchName
-    val sender = clientName
+    val sender = senzieName
 
     s"SHARE #pubkey $publicKey #time $timestamp @$receiver ^$sender"
   }
@@ -29,7 +29,7 @@ object SenzUtils extends Configuration {
     // unsigned senz
     val timestamp = (System.currentTimeMillis / 1000).toString
     val receiver = switchName
-    val sender = clientName
+    val sender = senzieName
 
     s"PING #time $timestamp @$receiver ^$sender"
   }

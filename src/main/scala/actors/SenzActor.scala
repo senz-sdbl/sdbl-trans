@@ -19,8 +19,6 @@ object SenzActor {
 
   case class InitSenz()
 
-  case class SenzMsg(msg: String)
-
   def props: Props = Props(new SenzActor)
 
 }
