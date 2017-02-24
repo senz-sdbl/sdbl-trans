@@ -1,13 +1,13 @@
 package db.dao
 
-import config.Configuration
+import config.DbConf
 import db.model.{Tran, TransT}
 import slick.driver.MySQLDriver.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object TranDAO extends TableQuery(new TransT(_)) with Configuration {
+object TranDAO extends TableQuery(new TransT(_)) with DbConf {
   def findById(id: Int): Future[Option[Tran]] = {
     db.run(this.filter(_.id === id).result).map(_.headOption)
   }

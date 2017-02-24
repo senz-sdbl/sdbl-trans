@@ -1,13 +1,13 @@
 package utils
 
-import config.Configuration
+import config.AppConf
 import crypto.RSAUtils
 import exceptions.EmptySenzException
 
 /**
   * Created by eranga on 1/11/16.
   */
-object SenzUtils extends Configuration {
+object SenzUtils extends AppConf {
   def isValidSenz(msg: String) = {
     if (msg == null || msg.isEmpty)
       throw new EmptySenzException("Empty Senz")

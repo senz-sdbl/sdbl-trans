@@ -7,7 +7,7 @@ import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import components.TransDbComp
-import config.Configuration
+import config.AppConf
 import org.slf4j.LoggerFactory
 import protocols.{Msg, Trans}
 import utils.TransUtils
@@ -28,7 +28,7 @@ trait TransHandlerComp {
     def props(trans: Trans): Props = Props(new TransHandler(trans))
   }
 
-  class TransHandler(trans: Trans) extends Actor with Configuration {
+  class TransHandler(trans: Trans) extends Actor with AppConf {
 
     import context._
 

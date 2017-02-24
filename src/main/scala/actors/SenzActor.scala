@@ -7,7 +7,7 @@ import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import components.CassandraTransDbComp
-import config.Configuration
+import config.AppConf
 import crypto.RSAUtils
 import db.SenzCassandraCluster
 import handlers.SenzHandler
@@ -23,7 +23,7 @@ object SenzActor {
 
 }
 
-class SenzActor extends Actor with Configuration {
+class SenzActor extends Actor with AppConf {
 
   import context._
 

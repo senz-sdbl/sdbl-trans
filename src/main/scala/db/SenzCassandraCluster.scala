@@ -1,15 +1,15 @@
 package db
 
-import com.datastax.driver.core.{PoolingOptions, HostDistance, Cluster, Session}
-import config.Configuration
+import com.datastax.driver.core.{Cluster, HostDistance, PoolingOptions, Session}
+import config.DbConf
 
 /**
- * Cassandra database related configuration, we wrapped them with
- * trait in order to have self typed annotated dependencies
- *
- * @author eranga bandara(erangaeb@gmail.com)
- */
-trait SenzCassandraCluster extends Configuration {
+  * Cassandra database related configuration, we wrapped them with
+  * trait in order to have self typed annotated dependencies
+  *
+  * @author eranga bandara(erangaeb@gmail.com)
+  */
+trait SenzCassandraCluster extends DbConf {
   lazy val poolingOptions: PoolingOptions = {
     new PoolingOptions().
       setConnectionsPerHost(HostDistance.LOCAL, 4, 10).

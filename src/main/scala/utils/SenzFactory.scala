@@ -1,11 +1,11 @@
 package utils
 
 import ch.qos.logback.classic.{Level, Logger}
-import config.Configuration
+import config.AppConf
 import crypto.RSAUtils
 import org.slf4j.LoggerFactory
 
-object SenzFactory extends Configuration {
+object SenzFactory extends AppConf {
   val setupLogging = () => {
     val rootLogger = LoggerFactory.getLogger("root").asInstanceOf[Logger]
 

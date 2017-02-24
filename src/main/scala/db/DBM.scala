@@ -1,6 +1,6 @@
 package db
 
-import config.Configuration
+import config.AppConf
 import db.dao.{AgentDAO, TranDAO}
 import db.model.{Agent, Agents, Tran, TransT}
 import slick.driver.MySQLDriver.api._
@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 /**
   * Created by eranga on 2/24/17.
   */
-object DBM extends App with Configuration {
+object DBM extends App with AppConf {
   // create tables
   val agents = TableQuery[Agents]
   val trans = TableQuery[TransT]
@@ -26,6 +26,6 @@ object DBM extends App with Configuration {
 
   //Await.result(db.run(createSchema), 10.seconds)
   //Await.result(TranDAO.create(Tran(1, "44343", 30, "34442232", "P", "4232344")), 10.seconds)
-  Await.result(TranDAO.updateStatus(Tran(1, "44343", 30, "34442232", "D", "4232344")), 10.seconds)
+  Await.result(TranDAO.updateStatus(Tran(1, "44343", 30, "34442232", "P", "4232344")), 10.seconds)
 }
 
