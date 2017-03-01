@@ -114,8 +114,7 @@ class SenzActor extends Actor with AppConf {
           case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
             // handle transaction request via trans actor
             val trans = TransUtils.getTrans(senz)
-            val transHandlerComp = new TransHandlerComp with CassandraTransDbComp with SenzCassandraCluster
-            context.actorOf(transHandlerComp.TransHandler.props(trans))
+            context.actorOf(TransHandler.props(trans))
           case any =>
             logger.debug(s"Not support other messages $senzMsg this stats")
         }
