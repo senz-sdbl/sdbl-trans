@@ -6,11 +6,8 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
-import components.CassandraTransDbComp
 import config.AppConf
 import crypto.RSAUtils
-import db.SenzCassandraCluster
-import handlers.SenzHandler
 import org.slf4j.LoggerFactory
 import protocols.{Msg, Senz, SenzType}
 import utils.{SenzParser, SenzUtils, TransUtils}
@@ -28,8 +25,6 @@ class SenzActor extends Actor with AppConf {
   import context._
 
   def logger = LoggerFactory.getLogger(this.getClass)
-
-  val senzHandler = new SenzHandler with CassandraTransDbComp with SenzCassandraCluster
 
   // connect to senz tcp
   val remoteAddress = new InetSocketAddress(InetAddress.getByName(switchHost), switchPort)

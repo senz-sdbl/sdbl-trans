@@ -1,6 +1,6 @@
 package components
 
-import protocols.{Trans, Agent}
+import db.model.{Agent, Trans}
 
 
 trait TransDbComp {

@@ -8,8 +8,9 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import config.AppConf
 import db.dao.TranDAO
+import db.model.Trans
 import org.slf4j.LoggerFactory
-import protocols.{Msg, Trans}
+import protocols.Msg
 import utils.TransUtils
 
 import scala.concurrent.duration._
@@ -46,9 +47,9 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
   }
 
   override def receive: Receive = {
-    case InitTrans(t) =>
+    case InitTrans(tr) =>
       // create transaction
-      TranDAO.create()
+      TranDAO.create(tr)
 
       // connect tcp
       // connect to epic tcp end
@@ -109,12 +110,11 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // update db
     // TODO update according to the status
-    TranDAO.updateStatus()
-    transDb.updateTrans(Trans(trans.agent, trans.customer, trans.amount, trans.timestamp, "DONE"))
+    TranDAO.updateStatus(Trans(trans.id, trans.customer, trans.amount, trans.timestamp, "DONE", trans.agentId))
 
     // send status back
     // TODO status according to the response
-    val senz = s"DATA #msg PUTDONE @${trans.agent} ^sdbltrans"
+    val senz = s"DATA #msg PUTDONE @${trans.agentId} ^sdbltrans"
     senzActor ! Msg(senz)
 
     // disconnect from tcp

@@ -2,7 +2,7 @@ package db.model
 
 import slick.driver.MySQLDriver.api._
 
-case class Agent(id: Int, account: String, branch: String)
+case class Agent(id: Int = 1, account: String, branch: String)
 
 class AgentT(tag: Tag) extends Table[Agent](tag, "AGENTS") {
   // columns

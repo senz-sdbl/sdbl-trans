@@ -3,7 +3,7 @@ package components
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
 import db.SenzCassandraCluster
-import protocols.{Agent, Trans}
+import db.model.{Agent, Trans}
 
 /**
  * Created by eranga on 2/2/16
@@ -44,14 +44,14 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Agent(row.getString("account"), row.getString("branch")))
+      if (row != null) Some(Agent(1, row.getString("account"), row.getString("branch")))
       else None
     }
 
     override def createTrans(trans: Trans) = {
       // insert query
       val statement = QueryBuilder.insertInto("trans")
-        .value("agent", trans.agent)
+        .value("agent", trans.agentId)
         .value("customer", trans.customer)
         .value("amount", trans.amount)
         .value("timestamp", trans.timestamp)
@@ -64,7 +64,7 @@ trait CassandraTransDbComp extends TransDbComp {
       // update query
       val statement = QueryBuilder.update("trans")
         .`with`(set("status", trans.status))
-        .where(QueryBuilder.eq("timestamp", trans.timestamp)).and(QueryBuilder.eq("agent", trans.agent))
+        .where(QueryBuilder.eq("timestamp", trans.timestamp)).and(QueryBuilder.eq("agent", trans.agentId))
 
       session.execute(statement)
     }
@@ -79,7 +79,7 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Trans(row.getString("agent"), row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status")))
+      if (row != null) Some(Trans(1, row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status"), row.getString("agentId")))
       else None
     }
   }
