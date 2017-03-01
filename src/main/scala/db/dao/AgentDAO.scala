@@ -1,13 +1,13 @@
 package db.dao
 
-import config.{AppConf, DbConf}
-import db.model.{Agent, Agents}
+import config.DbConf
+import db.model.{Agent, AgentT}
 import slick.driver.MySQLDriver.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object AgentDAO extends TableQuery(new Agents(_)) with DbConf {
+object AgentDAO extends TableQuery(new AgentT(_)) with DbConf {
   def findById(id: Int): Future[Option[Agent]] = {
     db.run(this.filter(_.id === id).result).map(_.headOption)
   }

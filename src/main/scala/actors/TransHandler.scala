@@ -22,8 +22,6 @@ case class TransTimeout()
 
 trait TransHandlerComp {
 
-  this: TransDbComp =>
-
   object TransHandler {
     def props(trans: Trans): Props = Props(new TransHandler(trans))
   }

@@ -3,9 +3,6 @@ package components
 import protocols.{Trans, Agent}
 
 
-/**
- * Created by eranga on 2/2/16.
- */
 trait TransDbComp {
 
   val transDb: TransDb
