@@ -3,7 +3,7 @@ package utils
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import actors.{TransMsg, TransResp}
+import actors.TransHandler.{TransMsg, TransResp}
 import db.model.Trans
 import protocols.Senz
 
@@ -15,7 +15,7 @@ object TransUtils {
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("#time", "")
 
-    Trans(uid, customer, amnt, timestamp, "P", agent)
+    Trans(Option(1), uid, customer, amnt, timestamp, "P", agent)
   }
 
   def getTransMsg(trans: Trans) = {

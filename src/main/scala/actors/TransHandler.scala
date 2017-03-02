@@ -16,20 +16,22 @@ import utils.TransUtils
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-case class InitTrans(trans: Trans)
-
-case class TransMsg(msgStream: Array[Byte])
-
-case class TransResp(esh: String, status: String, rst: String)
-
-case class TransTimeout()
-
 object TransHandler {
+
+  case class InitTrans(trans: Trans)
+
+  case class TransMsg(msgStream: Array[Byte])
+
+  case class TransResp(esh: String, status: String, rst: String)
+
+  case class TransTimeout()
+
   def props(trans: Trans): Props = Props(new TransHandler(trans))
 }
 
 class TransHandler(trans: Trans) extends Actor with AppConf {
 
+  import TransHandler._
   import context._
 
   def logger = LoggerFactory.getLogger(this.getClass)
@@ -53,7 +55,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
       Await.result(TranDAO.create(tr), 10.seconds)
 
       // send status back
-      val senz = s"DATA #uid${trans.uid} #status PENDING @${trans.agentId} ^sdbltrans"
+      val senz = s"DATA #uid ${trans.uid} #status PENDING @${trans.agentId} ^sdbltrans"
       senzActor ! Msg(senz)
 
       // connect tcp
@@ -102,7 +104,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
       logger.error("CommandFailed[Failed to connect]")
 
       // TODO send error
-      val senz = s"DATA #status DONE @${trans.agentId} ^sdbltrans"
+      val senz = s"DATA #uid ${trans.uid} #status DONE @${trans.agentId} ^sdbltrans"
       senzActor ! Msg(senz)
   }
 
@@ -119,7 +121,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // update db
     // TODO update according to the status
-    Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.agentId)), 10.seconds)
+    Await.result(TranDAO.updateStatus(Trans(trans.id, trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.agentId)), 10.seconds)
 
     // send status back
     // TODO status according to the response

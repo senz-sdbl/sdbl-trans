@@ -41,6 +41,8 @@ class SenzActor extends Actor with AppConf {
       logger.error("Exception caught, [STOP ACTOR] " + e)
       logFailure(e)
 
+      // TODO send error status back
+
       // stop failed actors here
       Stop
   }

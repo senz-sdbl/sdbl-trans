@@ -6,8 +6,8 @@ import db.SenzCassandraCluster
 import db.model.{Agent, Trans}
 
 /**
- * Created by eranga on 2/2/16
- */
+  * Created by eranga on 2/2/16
+  */
 trait CassandraTransDbComp extends TransDbComp {
 
   this: SenzCassandraCluster =>
@@ -79,7 +79,7 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Trans("1", row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status"), row.getString("agentId")))
+      if (row != null) Some(Trans(Option(1), "1", row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status"), row.getString("agentId")))
       else None
     }
   }
