@@ -16,8 +16,10 @@ object AgentDAO extends TableQuery(new AgentT(_)) with DbConf {
     db.run(this.filter(_.account === account).result).map(_.headOption)
   }
 
-  def create(agent: Agent): Future[Agent] = {
-    db.run(this returning this.map(_.id) into ((a, id) => a.copy(id = id)) += agent)
+  def create(agent: Agent): Future[Int] = {
+    // db.run(this returning this.map(_.autoInc) += agent)
+    //db.run(this += agent)
+    db.run(this += agent)
   }
 
   def update(agent: Agent) = {

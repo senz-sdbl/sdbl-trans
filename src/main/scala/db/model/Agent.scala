@@ -2,6 +2,7 @@ package db.model
 
 import slick.driver.MySQLDriver.api._
 
+
 case class Agent(id: Int, account: String, branch: String)
 
 class AgentT(tag: Tag) extends Table[Agent](tag, "AgentT") {
@@ -10,7 +11,7 @@ class AgentT(tag: Tag) extends Table[Agent](tag, "AgentT") {
   def account = column[String]("AGENT_ACCOUNT", O.PrimaryKey, O.Length(64))
   def branch = column[String]("AGENT_BRANCH", O.Length(64))
 
-  // indexes
+  // indexe
   def accountIdx = index("AGENT_ACCOUNT_IDX", account, unique = true)
 
   // select
