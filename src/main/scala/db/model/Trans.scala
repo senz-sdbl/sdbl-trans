@@ -2,11 +2,11 @@ package db.model
 
 import slick.driver.MySQLDriver.api._
 
-case class Trans(id: Int, customer: String, amount: Int, timestamp: String, status: String, agentId: String)
+case class Trans(uid: String, customer: String, amount: Int, timestamp: String, status: String, agentId: String)
 
 class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   // columns
-  def id = column[Int]("TRANST_ID", O.PrimaryKey, O.AutoInc)
+  def uid = column[String]("TRANST_UID", O.PrimaryKey, O.Length(64))
   def customer = column[String]("TRANST_CUSTOMER", O.Length(64))
   def amount = column[Int]("TRANST_AMOUNT")
   def timestamp = column[String]("TRANST_TIMESTAMP", O.Length(64))
@@ -17,6 +17,6 @@ class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   def agent = foreignKey("AGENT_FK", agentId, TableQuery[AgentT])(_.account)
 
   // select
-  def * = (id, customer, amount, timestamp, status, agentId) <> (Trans.tupled, Trans.unapply)
+  def * = (uid, customer, amount, timestamp, status, agentId) <> (Trans.tupled, Trans.unapply)
 }
 

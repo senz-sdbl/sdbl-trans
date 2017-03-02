@@ -10,11 +10,12 @@ import protocols.Senz
 object TransUtils {
   def getTrans(senz: Senz): Trans = {
     val agent = senz.sender
+    val uid = senz.attributes("#uid")
     val customer = senz.attributes.getOrElse("#acc", "")
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("#time", "")
 
-    Trans(0, customer, amnt, timestamp, "P", agent)
+    Trans(uid, customer, amnt, timestamp, "P", agent)
   }
 
   def getTransMsg(trans: Trans) = {

@@ -53,7 +53,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
       Await.result(TranDAO.create(tr), 10.seconds)
 
       // send status back
-      val senz = s"DATA #status PENDING @${trans.agentId} ^sdbltrans"
+      val senz = s"DATA #uid${trans.uid} #status PENDING @${trans.agentId} ^sdbltrans"
       senzActor ! Msg(senz)
 
       // connect tcp
@@ -119,11 +119,11 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // update db
     // TODO update according to the status
-    Await.result(TranDAO.updateStatus(Trans(trans.id, trans.customer, trans.amount, trans.timestamp, "D", trans.agentId)), 10.seconds)
+    Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.agentId)), 10.seconds)
 
     // send status back
     // TODO status according to the response
-    val senz = s"DATA #msg DONE @${trans.agentId} ^sdbltrans"
+    val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agentId} ^sdbltrans"
     senzActor ! Msg(senz)
 
     // disconnect from tcp

@@ -27,5 +27,9 @@ object AgentDAO extends TableQuery(new AgentT(_)) with DbConf {
   def deleteById(id: Int): Future[Int] = {
     db.run(this.filter(_.id === id).delete)
   }
+
+  def deleteByAccount(account: String): Future[Int] = {
+    db.run(this.filter(_.account === account).delete)
+  }
 }
 
