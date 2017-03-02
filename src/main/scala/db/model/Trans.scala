@@ -2,7 +2,7 @@ package db.model
 
 import slick.driver.MySQLDriver.api._
 
-case class Trans(id: Int, uid: String, customer: String, amount: Int, timestamp: String, status: String, agent: String)
+case class Trans(uid: String, customer: String, amount: Int, timestamp: String, status: String, agent: String)
 
 class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   // columns
@@ -17,7 +17,7 @@ class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   def agentFk = foreignKey("AGENT_FK", agent, TableQuery[AgentT])(_.account)
 
   // UID index
-  def uidIdx = index("TRANS_UID_IDX", uid, unique = true)
+  def uidIdx = index("UID_IDX", uid, unique = true)
 
   // select
   def * = (uid, customer, amount, timestamp, status, agent) <> (Trans.tupled, Trans.unapply)

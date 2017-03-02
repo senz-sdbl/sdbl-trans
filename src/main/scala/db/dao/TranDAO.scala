@@ -13,7 +13,6 @@ object TranDAO extends TableQuery(new TransT(_)) with DbConf {
   }
 
   def create(trans: Trans): Future[Int] = {
-    //db.run(this returning this.map(_.id) into ((t, id) => t.copy(id = id)) += trans)
     db.run(this += trans)
   }
 
@@ -21,7 +20,7 @@ object TranDAO extends TableQuery(new TransT(_)) with DbConf {
     db.run(this.filter(_.uid === trans.uid).map(t => t.status).update(trans.status))
   }
 
-  def deleteByUId(uid: String): Future[Int] = {
+  def deleteByUID(uid: String): Future[Int] = {
     db.run(this.filter(_.uid === uid).delete)
   }
 }

@@ -15,7 +15,7 @@ object TransUtils {
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("#time", "")
 
-    Trans(1, uid, customer, amnt, timestamp, "P", agent)
+    Trans(uid, customer, amnt, timestamp, "P", agent)
   }
 
   def getTransMsg(trans: Trans) = {

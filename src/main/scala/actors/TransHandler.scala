@@ -121,7 +121,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // update db
     // TODO update according to the status
-    Await.result(TranDAO.updateStatus(Trans(trans.id, trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.agent)), 10.seconds)
+    Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.agent)), 10.seconds)
 
     // send status back
     // TODO status according to the response
