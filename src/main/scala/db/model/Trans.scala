@@ -2,7 +2,7 @@ package db.model
 
 import slick.driver.MySQLDriver.api._
 
-case class Trans(id: Option[Int], uid: String, customer: String, amount: Int, timestamp: String, status: String, agentId: String)
+case class Trans(id: Option[Int], uid: String, customer: String, amount: Int, timestamp: String, status: String, agent: String)
 
 class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   // columns
