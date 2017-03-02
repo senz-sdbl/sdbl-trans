@@ -11,9 +11,6 @@ class AgentT(tag: Tag) extends Table[Agent](tag, "AgentT") {
   def account = column[String]("ACCOUNT", O.PrimaryKey, O.Length(64))
   def branch = column[String]("BRANCH", O.Length(64))
 
-  // index
-  def accountIdx = index("ACCOUNT_IDX", account, unique = true)
-
   // select
   def * = (id, account, branch) <> (Agent.tupled, Agent.unapply)
 }

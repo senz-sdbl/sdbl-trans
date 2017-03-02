@@ -16,9 +16,6 @@ class TransT(tag: Tag) extends Table[Trans](tag, "TransT") {
   def agent = column[String]("AGENT", O.Length(64))
   def agentFk = foreignKey("AGENT_FK", agent, TableQuery[AgentT])(_.account)
 
-  // UID index
-  def uidIdx = index("UID_IDX", uid, unique = true)
-
   // select
   def * = (uid, customer, amount, timestamp, status, agent) <> (Trans.tupled, Trans.unapply)
 }
