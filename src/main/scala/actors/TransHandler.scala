@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import protocols.Msg
 import utils.TransUtils
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 case class InitTrans(trans: Trans)
@@ -49,12 +50,16 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
   override def receive: Receive = {
     case InitTrans(tr) =>
       // create transaction
-      TranDAO.create(tr)
+      Await.result(TranDAO.create(tr), 10.seconds)
+
+      // send status back
+      val senz = s"DATA #status PENDING @${trans.agentId} ^sdbltrans"
+      senzActor ! Msg(senz)
 
       // connect tcp
       // connect to epic tcp end
       val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
-      IO(Tcp) ! Connect(remoteAddress)
+      IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
     case c@Connected(remote, local) =>
       logger.debug("TCP connected")
 
@@ -95,6 +100,10 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
     case CommandFailed(_: Connect) =>
       // failed to connect
       logger.error("CommandFailed[Failed to connect]")
+
+      // TODO send error
+      val senz = s"DATA #status DONE @${trans.agentId} ^sdbltrans"
+      senzActor ! Msg(senz)
   }
 
   def handleResponse(response: String, connection: ActorRef) = {
@@ -110,11 +119,11 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // update db
     // TODO update according to the status
-    TranDAO.updateStatus(Trans(trans.id, trans.customer, trans.amount, trans.timestamp, "DONE", trans.agentId))
+    Await.result(TranDAO.updateStatus(Trans(trans.id, trans.customer, trans.amount, trans.timestamp, "D", trans.agentId)), 10.seconds)
 
     // send status back
     // TODO status according to the response
-    val senz = s"DATA #msg PUTDONE @${trans.agentId} ^sdbltrans"
+    val senz = s"DATA #msg DONE @${trans.agentId} ^sdbltrans"
     senzActor ! Msg(senz)
 
     // disconnect from tcp

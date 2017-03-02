@@ -20,6 +20,6 @@ object SenzFactory extends AppConf {
   }
 
   val setupKeys = () => {
-    RSAUtils.loadRSAKeyPair()
+    RSAUtils.initRSAKeys()
   }
 }

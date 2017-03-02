@@ -19,6 +19,6 @@ trait DbConf {
   lazy val mysqlUser = Try(config.getString("db.mysql.user")).getOrElse("root")
   lazy val mysqlPassword = Try(config.getString("db.mysql.password")).getOrElse("root")
 
-  val db = Database.forURL(url = s"jdbc:mysql://$mysqlHost:$mysqlPort/sdbl", user = mysqlUser, password = mysqlPassword, driver = "com.mysql.jdbc.Driver")
+  val db = Database.forURL(url = s"jdbc:mysql://$mysqlHost:$mysqlPort/SDBL", user = mysqlUser, password = mysqlPassword, driver = "com.mysql.jdbc.Driver")
 }
 

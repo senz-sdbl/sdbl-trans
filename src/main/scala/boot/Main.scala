@@ -3,6 +3,7 @@ package boot
 import actors.SenzActor.InitSenz
 import actors._
 import akka.actor.ActorSystem
+import db.DbFactory
 import utils.SenzFactory
 
 /**
@@ -15,6 +16,9 @@ object Main extends App {
 
   // setup keys
   SenzFactory.setupKeys()
+
+  // init db
+  DbFactory.initDb()
 
   implicit val system = ActorSystem("senz")
 

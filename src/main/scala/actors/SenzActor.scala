@@ -1,8 +1,10 @@
 package actors
 
+import java.io.{PrintWriter, StringWriter}
 import java.net.{InetAddress, InetSocketAddress}
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.SupervisorStrategy.Stop
+import akka.actor.{Actor, ActorRef, OneForOneStrategy, Props}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import akka.util.ByteString
@@ -32,6 +34,15 @@ class SenzActor extends Actor with AppConf {
 
   override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
+  }
+
+  override def supervisorStrategy = OneForOneStrategy() {
+    case e: Exception =>
+      logger.error("Exception caught, [STOP ACTOR] " + e)
+      logFailure(e)
+
+      // stop failed actors here
+      Stop
   }
 
   override def receive: Receive = {
@@ -126,6 +137,12 @@ class SenzActor extends Actor with AppConf {
       logger.info("Signed senz: " + signedSenz)
 
       connection ! Write(ByteString(s"$signedSenz;"))
+  }
+
+  private def logFailure(throwable: Throwable) = {
+    val writer = new StringWriter
+    throwable.printStackTrace(new PrintWriter(writer))
+    logger.error(writer.toString)
   }
 
 }
