@@ -1,6 +1,6 @@
 package actors
 
-import java.net.{InetAddress, InetSocketAddress}
+import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
@@ -51,17 +51,17 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
   override def receive: Receive = {
     case InitTrans(tr) =>
+      // connect tcp
+      // connect to epic tcp end
+      val remoteAddress = new InetSocketAddress(epicHost, epicPort)
+      IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
+
       // create transaction
       Await.result(TranDAO.create(tr), 10.seconds)
 
       // send status back
       val senz = s"DATA #uid ${trans.uid} #status PENDING @${trans.agent} ^sdbltrans"
       senzActor ! Msg(senz)
-
-      // connect tcp
-      // connect to epic tcp end
-      val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
-      IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
     case c@Connected(remote, local) =>
       logger.debug("TCP connected")
 

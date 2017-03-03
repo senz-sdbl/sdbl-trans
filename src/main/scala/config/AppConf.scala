@@ -23,8 +23,8 @@ trait AppConf {
   lazy val switchPort = Try(config.getInt("switch.port")).getOrElse(7070)
 
   // epic config
-  lazy val epicHost = Try(config.getString("epic.host")).getOrElse("localhost")
-  lazy val epicPort = Try(config.getInt("epic.port")).getOrElse(8080)
+  lazy val epicHost = Try(config.getString("epic.host")).getOrElse("dev.localhost")
+  lazy val epicPort = Try(config.getInt("epic.port")).getOrElse(8200)
 
   // keys config
   lazy val keysDir = Try(config.getString("keys.dir")).getOrElse(".keys")

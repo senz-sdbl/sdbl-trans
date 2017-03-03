@@ -15,7 +15,7 @@ object TransUtils {
     val customer = senz.attributes.getOrElse("#acc", "")
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("#time", "")
-    val mobile: Option[String] = Some(senz.attributes.getOrElse("#mobile", ""))
+    val mobile = senz.attributes.get("#mob")
 
     Trans(uid, customer, amnt, timestamp, "P", mobile, agent)
   }
