@@ -13,6 +13,8 @@ docker run -it \
 -e EPIC_PORT=8200 \
 -e CASSANDRA_HOST=10.2.2.23 \
 -e CASSANDRA_PORT=9042 \
+-e MYSQL_HOST=dev.localhost \
+-e MYSQL_PORT=3306 \
 -v /home/docker/sdbl/logs:/app/logs:rw \
 -v /home/docker/sdbl/keys:/app/.keys:rw \
 erangaeb/sdbltrans:0.1

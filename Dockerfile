@@ -25,6 +25,8 @@ ENV EPIC_HOST dev.localhost
 ENV EPIC_PORT 8080
 ENV CASSANDRA_HOST dev.localhost
 ENV CASSANDRA_PORT 9090
+ENV MYSQL_HOST dev.localhost
+ENV MYSQL_PORT 3306
 
 # working directory
 WORKDIR /app
