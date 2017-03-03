@@ -30,33 +30,32 @@ object TransUtils {
   }
 
   def generateFundTransMsg(trans: Trans) = {
-
-    val pip = "|"   // terminating pip for all attributes
-    val rnd = new scala.util.Random               //  genaration of transaction ID
+    val pip = "|" // terminating pip for all attributes
+    val rnd = new scala.util.Random //  genaration of transaction ID
     val randomInt = 100000 + rnd.nextInt(900000) //  random num of 6 digits
-    val transId = s"$randomInt$getTransTime"      // random in of length 6 and time stamp of 10 digits
+    val transId = s"$randomInt$getTransTime" // random in of length 6 and time stamp of 10 digits
 
     val payMode = "02" // pay mode
     val epinb = "ffffffffffffffff" // ePINB, 16 digits
     val offset = "ffffffffffff" // offset, 12 digits
-    val mobileNo = trans.mobile
+    val mobile = trans.mobile.getOrElse("0000000000")
     val fromAcc = trans.agent
     val toAcc = trans.customer
-    val amnt = "%012d".format(trans.amount * 100  ) // amount, 12 digits
+    val amnt = "%012d".format(trans.amount * 100) // amount, 12 digits
 
-    s"$transId$pip$payMode$pip$epinb$pip$offset$pip$mobileNo$pip$fromAcc$pip$toAcc$pip$amnt"
+    s"$transId$pip$payMode$pip$epinb$pip$offset$pip$mobile$pip$fromAcc$pip$toAcc$pip$amnt"
   }
 
   def generateEsh = {
-    val pip = "|"      // add a pip after the ESH
+    val pip = "|" // add a pip after the ESH
     val a = "DEP" // incoming channel mode[mobile]
     val b = "01" // transaction process type[financial]
     val c = "13" // transaction code[Cash deposit{UCSC}]
     val d = "00000002" // TID, 8 digits
     val e = "000000000000002" // MID, 15 digits
 
-    val rnd = new scala.util.Random               // generation of trace no
-    val f = 100000 + rnd.nextInt(900000)     // generation of trace no
+    val rnd = new scala.util.Random // generation of trace no
+    val f = 100000 + rnd.nextInt(900000) // generation of trace no
     val g = getTransTime // date time MMDDHHMMSS
     val h = "0001" // application ID, 4 digits
     val i = "0000000000000000" // private data, 16 digits
