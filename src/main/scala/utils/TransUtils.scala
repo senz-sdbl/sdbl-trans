@@ -7,6 +7,7 @@ import actors.TransHandler.{TransMsg, TransResp}
 import db.model.Trans
 import protocols.Senz
 
+
 object TransUtils {
   def getTrans(senz: Senz): Trans = {
     val agent = senz.sender
@@ -14,9 +15,9 @@ object TransUtils {
     val customer = senz.attributes.getOrElse("#acc", "")
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
     val timestamp = senz.attributes.getOrElse("#time", "")
-    val mobile = senz.attributes.getOrElse("#mobile", "")
+    val mobile: Option[String] = Some(senz.attributes.getOrElse("#mobile", ""))
 
-    Trans(uid, customer, amnt, timestamp, "P", agent, mobile)
+    Trans(uid, customer, amnt, timestamp, "P", mobile, agent)
   }
 
   def getTransMsg(trans: Trans) = {
