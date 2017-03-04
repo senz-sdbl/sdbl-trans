@@ -1,6 +1,6 @@
 package actors
 
-import java.net.InetSocketAddress
+import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.io.Tcp._
@@ -24,7 +24,7 @@ object TransHandler {
 
   case class TransResp(esh: String, status: String, rst: String)
 
-  case class TransTimeout()
+  case class TransTimeout(retry: Int)
 
   def props(trans: Trans): Props = Props(new TransHandler(trans))
 }
@@ -43,7 +43,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
   self ! InitTrans(trans)
 
   // handle timeout in 15 seconds
-  val timeoutCancellable = system.scheduler.scheduleOnce(15 seconds, self, TransTimeout)
+  var timeoutCancellable = system.scheduler.scheduleOnce(15 seconds, self, TransTimeout(0))
 
   override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
@@ -53,7 +53,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
     case InitTrans(tr) =>
       // connect tcp
       // connect to epic tcp end
-      val remoteAddress = new InetSocketAddress(epicHost, epicPort)
+      val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
       IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
 
       // create transaction
@@ -91,7 +91,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
         case _: ConnectionClosed =>
           logger.debug("ConnectionClosed")
           context.stop(self)
-        case TransTimeout =>
+        case TransTimeout(retry) =>
           // timeout
           logger.error("TransTimeout")
           logger.debug("Resend TransMsg " + msgStream)
