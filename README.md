@@ -17,3 +17,24 @@ docker run -it -d \
 -v /home/docker/sdbl/trans/keys:/app/.keys:rw \
 erangaeb/sdbltrans:0.5
 ```
+
+# hosts
+
+## epic
+```
+# at sdbl
+10.100.31.240   8200
+
+# public  
+124.43.16.185   8200
+```
+
+## switch
+```
+# sdbl
+10.100.31.44    7070
+
+# local
+dev.localhost   7070
+172.17.0.1      7070
+```

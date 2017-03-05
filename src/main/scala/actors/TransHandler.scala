@@ -125,7 +125,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
 
     // send status back
     // TODO status according to the response
-    val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^sdbltrans"
+    val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"
     senzActor ! Msg(senz)
 
     // disconnect from tcp

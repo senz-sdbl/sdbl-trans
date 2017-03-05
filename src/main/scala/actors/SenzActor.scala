@@ -124,7 +124,7 @@ class SenzActor extends Actor with AppConf {
             val trans = TransUtils.getTrans(senz)
             context.actorOf(TransHandler.props(trans))
           case any =>
-            logger.debug(s"Not support other messages $senzMsg this stats")
+            logger.debug(s"Not support message: $senzMsg")
         }
       }
     case _: ConnectionClosed =>

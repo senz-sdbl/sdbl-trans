@@ -10,7 +10,6 @@ import utils.SenzFactory
   * Created by eranga on 1/9/16.
   */
 object Main extends App {
-
   // setup logging
   SenzFactory.setupLogging()
 
