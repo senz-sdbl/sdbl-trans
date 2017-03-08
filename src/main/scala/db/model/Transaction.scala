@@ -4,7 +4,7 @@ import slick.driver.MySQLDriver.api._
 
 case class Transaction(uid: String, customer: String, amount: Int, timestamp: String, status: String, mobile: Option[String], agent: String)
 
-class Transactions(tag: Tag) extends Table[Transaction](tag, "Transactions") {
+class Transactions(tag: Tag) extends Table[Transaction](tag, "transactions") {
   // columns
   def uid = column[String]("uid", O.Length(64), O.PrimaryKey)
   def customer = column[String]("customer", O.Length(64))

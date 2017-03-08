@@ -19,7 +19,7 @@ trait AppConf {
 
   // server config
   lazy val switchName = Try(config.getString("switch.name")).getOrElse("senzswitch")
-  lazy val switchHost = Try(config.getString("switch.host")).getOrElse("localhost")
+  lazy val switchHost = Try(config.getString("switch.host")).getOrElse("dev.localhost")
   lazy val switchPort = Try(config.getInt("switch.port")).getOrElse(7070)
 
   // epic config
