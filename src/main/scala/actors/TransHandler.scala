@@ -96,15 +96,15 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
           logger.error("TransTimeout")
           logger.debug("Resend TransMsg " + msgStream)
 
-          // resend trans
-          connection ! Write(ByteString(transMsg.msgStream))
+        // TODO resend trans
+        //connection ! Write(ByteString(transMsg.msgStream))
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
       logger.error("CommandFailed[Failed to connect]")
 
-      // TODO send error
-      val senz = s"DATA #uid ${trans.uid} #status DONE @${trans.agent} ^sdbltrans"
+      // send fail status back
+      val senz = s"DATA #uid ${trans.uid} #status FAIL @${trans.agent} ^sdbltrans"
       senzActor ! Msg(senz)
   }
 
@@ -113,20 +113,26 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
     TransUtils.getTransResp(response) match {
       case TransResp(_, "00", _) =>
         logger.debug("Transaction done")
+
+        // update db
+        Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.mobile, trans.agent)), 10.seconds)
+
+        // send success status back
+        val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"
+        senzActor ! Msg(senz)
       case TransResp(_, status, _) =>
         logger.error("Transaction fail with stats: " + status)
+
+        // send fail status back
+        val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+        senzActor ! Msg(senz)
       case transResp =>
         logger.error("Invalid response " + transResp)
+
+        // send fail status back
+        val senz = s"DATA #uid${trans.uid} #status FAIL @${trans.agent} ^$senzieName"
+        senzActor ! Msg(senz)
     }
-
-    // update db
-    // TODO update according to the status
-    Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.mobile, trans.agent)), 10.seconds)
-
-    // send status back
-    // TODO status according to the response
-    val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"
-    senzActor ! Msg(senz)
 
     // disconnect from tcp
     connection ! Close
