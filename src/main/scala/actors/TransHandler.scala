@@ -8,7 +8,7 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import config.AppConf
 import db.dao.TranDAO
-import db.model.Trans
+import db.model.Transaction
 import org.slf4j.LoggerFactory
 import protocols.Msg
 import utils.TransUtils
@@ -18,7 +18,7 @@ import scala.concurrent.duration._
 
 object TransHandler {
 
-  case class InitTrans(trans: Trans)
+  case class InitTrans(trans: Transaction)
 
   case class TransMsg(msgStream: Array[Byte])
 
@@ -26,10 +26,10 @@ object TransHandler {
 
   case class TransTimeout(retry: Int)
 
-  def props(trans: Trans): Props = Props(new TransHandler(trans))
+  def props(trans: Transaction): Props = Props(new TransHandler(trans))
 }
 
-class TransHandler(trans: Trans) extends Actor with AppConf {
+class TransHandler(trans: Transaction) extends Actor with AppConf {
 
   import TransHandler._
   import context._
@@ -115,7 +115,7 @@ class TransHandler(trans: Trans) extends Actor with AppConf {
         logger.debug("Transaction done")
 
         // update db
-        Await.result(TranDAO.updateStatus(Trans(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.mobile, trans.agent)), 10.seconds)
+        Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.mobile, trans.agent)), 10.seconds)
 
         // send success status back
         val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"

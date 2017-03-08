@@ -1,6 +1,6 @@
 package components
 
-import db.model.{Agent, Trans}
+import db.model.{Agent, Transaction}
 
 
 trait TransDbComp {
@@ -12,11 +12,11 @@ trait TransDbComp {
 
     def getAgent(name: String): Option[Agent]
 
-    def createTrans(trans: Trans)
+    def createTrans(trans: Transaction)
 
-    def updateTrans(trans: Trans)
+    def updateTrans(trans: Transaction)
 
-    def getTrans(agent: String, timestamp: String): Option[Trans]
+    def getTrans(agent: String, timestamp: String): Option[Transaction]
   }
 
 }

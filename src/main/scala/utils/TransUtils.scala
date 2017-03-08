@@ -4,12 +4,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import actors.TransHandler.{TransMsg, TransResp}
-import db.model.Trans
+import db.model.Transaction
 import protocols.Senz
 
 
 object TransUtils {
-  def getTrans(senz: Senz): Trans = {
+  def getTrans(senz: Senz): Transaction = {
     val agent = senz.sender
     val uid = senz.attributes("#uid")
     val customer = senz.attributes.getOrElse("#acc", "")
@@ -17,10 +17,10 @@ object TransUtils {
     val timestamp = senz.attributes.getOrElse("#time", "")
     val mobile = senz.attributes.get("#mob")
 
-    Trans(uid, customer, amnt, timestamp, "P", mobile, agent)
+    Transaction(uid, customer, amnt, timestamp, "P", mobile, agent)
   }
 
-  def getTransMsg(trans: Trans) = {
+  def getTransMsg(trans: Transaction) = {
     val fundTranMsg = generateFundTransMsg(trans)
     val esh = generateEsh
     val msg = s"$esh$fundTranMsg"
@@ -29,7 +29,7 @@ object TransUtils {
     TransMsg(header ++ msg.getBytes)
   }
 
-  def generateFundTransMsg(trans: Trans) = {
+  def generateFundTransMsg(trans: Transaction) = {
     val pip = "|" // terminating pip for all attributes
     val rnd = new scala.util.Random //  genaration of transaction ID
     val randomInt = 100000 + rnd.nextInt(900000) //  random num of 6 digits

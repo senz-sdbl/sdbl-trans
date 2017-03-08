@@ -3,7 +3,7 @@ package components
 import com.datastax.driver.core.querybuilder.QueryBuilder
 import com.datastax.driver.core.querybuilder.QueryBuilder._
 import db.SenzCassandraCluster
-import db.model.{Agent, Trans}
+import db.model.{Agent, Transaction}
 
 /**
   * Created by eranga on 2/2/16
@@ -44,11 +44,11 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Agent(1, row.getString("account"), row.getString("branch")))
+      if (row != null) Some(Agent(row.getString("account"), row.getString("branch")))
       else None
     }
 
-    override def createTrans(trans: Trans) = {
+    override def createTrans(trans: Transaction) = {
       // insert query
       val statement = QueryBuilder.insertInto("trans")
         .value("agent", trans.agent)
@@ -60,7 +60,7 @@ trait CassandraTransDbComp extends TransDbComp {
       session.execute(statement)
     }
 
-    override def updateTrans(trans: Trans) = {
+    override def updateTrans(trans: Transaction) = {
       // update query
       val statement = QueryBuilder.update("trans")
         .`with`(set("status", trans.status))
@@ -69,7 +69,7 @@ trait CassandraTransDbComp extends TransDbComp {
       session.execute(statement)
     }
 
-    override def getTrans(agent: String, timestamp: String): Option[Trans] = {
+    override def getTrans(agent: String, timestamp: String): Option[Transaction] = {
       // select query
       val selectStmt = select().all()
         .from("trans")
@@ -79,7 +79,7 @@ trait CassandraTransDbComp extends TransDbComp {
       val resultSet = session.execute(selectStmt)
       val row = resultSet.one()
 
-      if (row != null) Some(Trans("1", row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status"), Option(row.getString("mobile")), row.getString("agentId")))
+      if (row != null) Some(Transaction("1", row.getString("customer"), row.getInt("amount"), row.getString("timestamp"), row.getString("status"), Option(row.getString("mobile")), row.getString("agentId")))
       else None
     }
   }

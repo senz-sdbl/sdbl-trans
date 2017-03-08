@@ -1,7 +1,7 @@
 package db
 
 import config.DbConf
-import db.model.{AgentT, TransT}
+import db.model.{Agents, Transactions}
 import slick.driver.MySQLDriver.api._
 import slick.jdbc.meta.MTable
 
@@ -11,8 +11,8 @@ import scala.concurrent.{Await, Future}
 
 object DbFactory extends DbConf {
   val initDb = () => {
-    val agents = TableQuery[AgentT]
-    val trans = TableQuery[TransT]
+    val agents = TableQuery[Agents]
+    val trans = TableQuery[Transactions]
 
     //Await.result(createDb("SDBL"), 10.seconds)
     Await.result(createTables(agents, trans), 10.seconds)
