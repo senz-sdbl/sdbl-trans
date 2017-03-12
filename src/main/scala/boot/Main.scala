@@ -25,14 +25,14 @@ object Main extends App {
   val senzActor = system.actorOf(SenzActor.props, name = "SenzActor")
   senzActor ! InitSenz
 
-  //      import scala.concurrent.Await
-  //      import scala.concurrent.duration._
-  //      import db.dao.TranDAO
-  //      import db.dao.AgentDAO
-  //      import db.model.Trans
-  //      import db.model.Agent
-  //      DbFactory.initDb()
-  //      //Await.result(AgentDAO.create(Agent(4, "eranga", "KO")), 5.seconds)
-  //      //Await.result(TranDAO.create(Trans("903223", "deee", 300, "32323223", "P", "eranga")), 5.seconds)
-  //      Await.result(TranDAO.updateStatus(Trans("903223", "deee", 300, "32323223", "D", "eranga")), 5.seconds)
+//        import scala.concurrent.Await
+//        import scala.concurrent.duration._
+//        import db.dao.TranDAO
+//        import db.dao.AgentDAO
+//        import db.model.Transaction
+//        import db.model.Agent
+//        DbFactory.initDb()
+//        Await.result(AgentDAO.create(Agent("eranga", "KO")), 5.seconds)
+//        //Await.result(TranDAO.create(Trans("903223", "deee", 300, "32323223", "P", "eranga")), 5.seconds)
+//        Await.result(TranDAO.updateStatus(Transaction("903223", "deee", 300, "443323232", "D", Option("00333"), "eranga")), 5.seconds)
 }

@@ -39,9 +39,10 @@ object TransUtils {
     val epinb = "ffffffffffffffff" // ePINB, 16 digits
     val offset = "ffffffffffff" // offset, 12 digits
     val mobile = trans.mobile.getOrElse("0000000000")
-    val fromAcc = trans.agent
-    val toAcc = trans.customer
+    val fromAcc = "0" * (12 - trans.agent.length) + trans.agent
+    val toAcc = "0" * (12 - trans.customer.length) + trans.customer
     val amnt = "%012d".format(trans.amount) // amount, 12 digits
+    fromAcc.format()
 
     s"$transId$pip$payMode$pip$epinb$pip$offset$pip$mobile$pip$fromAcc$pip$toAcc$pip$amnt"
   }

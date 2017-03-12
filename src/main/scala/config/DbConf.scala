@@ -14,11 +14,12 @@ trait DbConf {
   lazy val cassandraPort = Try(config.getInt("cassandra.port")).getOrElse(9160)
 
   // mysql config
+  lazy val dbName = Try(config.getString("mysql.dbName")).getOrElse("sdbl")
   lazy val mysqlHost = Try(config.getString("mysql.host")).getOrElse("dev.localhost")
   lazy val mysqlPort = Try(config.getInt("mysql.port")).getOrElse(3306)
   lazy val mysqlUser = Try(config.getString("mysql.user")).getOrElse("root")
   lazy val mysqlPassword = Try(config.getString("mysql.password")).getOrElse("root")
 
-  val db = Database.forURL(url = s"jdbc:mysql://$mysqlHost:$mysqlPort/SDBL", user = mysqlUser, password = mysqlPassword, driver = "com.mysql.jdbc.Driver")
+  val db = Database.forURL(url = s"jdbc:mysql://$mysqlHost:$mysqlPort/$dbName", user = mysqlUser, password = mysqlPassword, driver = "com.mysql.jdbc.Driver")
 }
 

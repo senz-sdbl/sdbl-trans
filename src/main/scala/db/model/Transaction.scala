@@ -6,12 +6,12 @@ case class Transaction(uid: String, customer: String, amount: Int, timestamp: St
 
 class Transactions(tag: Tag) extends Table[Transaction](tag, "transactions") {
   // columns
-  def uid = column[String]("uid", O.Length(64), O.PrimaryKey)
-  def customer = column[String]("customer", O.Length(64))
+  def uid = column[String]("uid", O.PrimaryKey, O.Length(64))
+  def customer = column[String]("customer")
   def amount = column[Int]("amount")
-  def timestamp = column[String]("timestamp", O.Length(64))
-  def status = column[String]("status", O.Length(2))
-  def mobile = column[Option[String]]("mobile", O.Length(64))
+  def timestamp = column[String]("timestamp")
+  def status = column[String]("status")
+  def mobile = column[Option[String]]("mobile")
 
   // foreign key
   def agent = column[String]("agent", O.Length(64))
