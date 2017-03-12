@@ -24,7 +24,7 @@ object TransHandler {
 
   case class TransResp(esh: String, status: String, rst: String)
 
-  case class TransTimeout(retry: Int)
+  case class TransTimeout()
 
   def props(trans: Transaction): Props = Props(new TransHandler(trans))
 }
@@ -43,7 +43,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
   self ! InitTrans(trans)
 
   // handle timeout in 15 seconds
-  var timeoutCancellable = system.scheduler.scheduleOnce(15 seconds, self, TransTimeout(0))
+  var timeoutCancellable = system.scheduler.scheduleOnce(10 seconds, self, TransTimeout())
 
   override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
@@ -90,22 +90,25 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
           handleResponse(response, connection)
         case _: ConnectionClosed =>
           logger.debug("ConnectionClosed")
-          context.stop(self)
-        case TransTimeout(retry) =>
+        case TransTimeout() =>
           // timeout
           logger.error("TransTimeout")
-          logger.debug("Resend TransMsg " + msgStream)
 
-        // TODO resend trans
-        //connection ! Write(ByteString(transMsg.msgStream))
+          // send error response
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          senzActor ! Msg(senz)
+
+          context.stop(self)
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
       logger.error("CommandFailed[Failed to connect]")
 
       // send fail status back
-      val senz = s"DATA #uid ${trans.uid} #status FAIL @${trans.agent} ^sdbltrans"
+      val senz = s"DATA #uid ${trans.uid} #status ERROR @${trans.agent} ^sdbltrans"
       senzActor ! Msg(senz)
+
+      context.stop(self)
   }
 
   def handleResponse(response: String, connection: ActorRef) = {
@@ -130,12 +133,11 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
         logger.error("Invalid response " + transResp)
 
         // send fail status back
-        val senz = s"DATA #uid${trans.uid} #status FAIL @${trans.agent} ^$senzieName"
+        val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
         senzActor ! Msg(senz)
     }
 
-    // disconnect from tcp
-    connection ! Close
+    context.stop(self)
   }
 }
 
