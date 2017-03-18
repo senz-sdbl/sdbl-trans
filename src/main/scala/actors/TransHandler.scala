@@ -98,6 +98,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
           val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
           senzActor ! Msg(senz)
 
+          // stop from here
           context.stop(self)
       }
     case CommandFailed(_: Connect) =>
@@ -108,6 +109,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
       val senz = s"DATA #uid ${trans.uid} #status ERROR @${trans.agent} ^sdbltrans"
       senzActor ! Msg(senz)
 
+      // stop from here
       context.stop(self)
   }
 
@@ -137,6 +139,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
         senzActor ! Msg(senz)
     }
 
+    // stop from here
     context.stop(self)
   }
 }

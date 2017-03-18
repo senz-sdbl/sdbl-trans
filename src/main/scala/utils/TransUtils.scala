@@ -41,7 +41,7 @@ object TransUtils {
     val mobile = trans.mobile.getOrElse("0000000000")
     val fromAcc = "0" * (12 - trans.agent.length) + trans.agent
     val toAcc = "0" * (12 - trans.customer.length) + trans.customer
-    val amnt = "%012d".format(trans.amount) // amount, 12 digits
+    val amnt = "%010d".format(trans.amount) + "00" // amount, 12 digits
     fromAcc.format()
 
     s"$transId$pip$payMode$pip$epinb$pip$offset$pip$mobile$pip$fromAcc$pip$toAcc$pip$amnt"
@@ -79,23 +79,9 @@ object TransUtils {
   }
 
   def getTransResp(response: String) = {
-    TransResp(response.substring(0, 70), response.substring(77, 79), response.substring(72))
+    val tuples = response.split("\\|")
+    val status = tuples(0).substring(tuples(0).length - 2, tuples(0).length)
+    TransResp("ESH", status, "RSP")
   }
 }
 
-//object Main extends App {
-//  val agent = "222222222222"
-//  val customer = "555555555555"
-//  val msg = TransUtils.getTransMsg(Trans(agent, "3423432", customer, "250", "PENDING"))
-//  println(msg)
-//
-//
-//  TransUtils.getTransResp(msg.msg) match {
-//    case TransResp(_, "11", _) =>
-//      println("Transaction done")
-//    case TransResp(_, status, _) =>
-//      println("hoooo " + status)
-//    case transResp =>
-//      println("Invalid response " + transResp)
-//  }
-//}
