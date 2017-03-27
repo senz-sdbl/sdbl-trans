@@ -17,7 +17,7 @@ object TransUtils {
     val timestamp = (System.currentTimeMillis() / 1000).toString
     val mobile = senz.attributes.get("#mob")
 
-    Transaction(uid, customer, amnt, timestamp, "P", mobile, agent)
+    Transaction(uid, customer, amnt, timestamp, "PENDING", mobile, agent)
   }
 
   def getTransMsg(trans: Transaction) = {

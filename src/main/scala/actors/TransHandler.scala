@@ -9,12 +9,12 @@ import akka.util.ByteString
 import config.AppConf
 import db.dao.TranDAO
 import db.model.Transaction
-import org.slf4j.LoggerFactory
 import protocols.Msg
-import utils.TransUtils
+import utils.{SenzLogger, TransUtils}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 object TransHandler {
 
@@ -29,12 +29,10 @@ object TransHandler {
   def props(trans: Transaction): Props = Props(new TransHandler(trans))
 }
 
-class TransHandler(trans: Transaction) extends Actor with AppConf {
+class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogger {
 
   import TransHandler._
   import context._
-
-  def logger = LoggerFactory.getLogger(this.getClass)
 
   // we need senz sender to send reply back
   val senzActor = context.actorSelection("/user/SenzActor")
@@ -43,7 +41,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
   self ! InitTrans(trans)
 
   // handle timeout in 15 seconds
-  var timeoutCancellable = system.scheduler.scheduleOnce(10 seconds, self, TransTimeout())
+  var timeoutCancellable = system.scheduler.scheduleOnce(10.seconds, self, TransTimeout())
 
   override def preStart() = {
     logger.debug("Start actor: " + context.self.path)
@@ -51,17 +49,42 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
 
   override def receive: Receive = {
     case InitTrans(tr) =>
-      // connect tcp
-      // connect to epic tcp end
-      val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
-      IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
-
       // create transaction, if not exists
-      Await.result(TranDAO.create(tr), 10.seconds)
+      Try {
+        Await.result(TranDAO.getOrCreate(tr), 10.seconds)
+      } match {
+        case Success((t: Transaction, 1)) =>
+          // transaction created
+          // send INIT status back
+          val senz = s"DATA #uid ${trans.uid} #status INIT @${trans.agent} ^sdbltrans"
+          senzActor ! Msg(senz)
 
-      // send status back
-      val senz = s"DATA #uid ${trans.uid} #status PENDING @${trans.agent} ^sdbltrans"
-      senzActor ! Msg(senz)
+          // connect tcp
+          // connect to epic tcp end
+          val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
+          IO(Tcp) ! Connect(remoteAddress, timeout = Option(15.seconds))
+        case Success((t: Transaction, 0)) =>
+          // transaction exists
+          // send transaction status back
+          val senz = s"DATA #uid ${trans.uid} #status ${t.status} @${trans.agent} ^sdbltrans"
+          senzActor ! Msg(senz)
+        case Success(r) =>
+          // unexpected result
+          logger.error(s"Unexpected result: $r")
+
+          // stop from here
+          context.stop(self)
+        case Failure(e) =>
+          // something went wrong
+          // send ERROR status back
+          val senz = s"DATA #uid ${trans.uid} #status ERROR @${trans.agent} ^sdbltrans"
+          senzActor ! Msg(senz)
+
+          logError(e)
+
+          // stop from here
+          context.stop(self)
+      }
     case c@Connected(remote, local) =>
       logger.debug("TCP connected")
 
@@ -120,13 +143,16 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
         logger.debug("Transaction done")
 
         // update db
-        Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "D", trans.mobile, trans.agent)), 10.seconds)
+        Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "DONE", trans.mobile, trans.agent)), 10.seconds)
 
         // send success status back
         val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"
         senzActor ! Msg(senz)
       case TransResp(_, status, _) =>
         logger.error("Transaction fail with stats: " + status)
+
+        // update db
+        Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "ERROR", trans.mobile, trans.agent)), 10.seconds)
 
         // send fail status back
         val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"

@@ -1,6 +1,5 @@
 package actors
 
-import java.io.{PrintWriter, StringWriter}
 import java.net.{InetAddress, InetSocketAddress}
 
 import akka.actor.SupervisorStrategy.Stop
@@ -10,9 +9,8 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import config.AppConf
 import crypto.RSAUtils
-import org.slf4j.LoggerFactory
 import protocols.{Msg, Senz, SenzType}
-import utils.{SenzParser, SenzUtils, TransUtils}
+import utils._
 
 object SenzActor {
 
@@ -22,11 +20,9 @@ object SenzActor {
 
 }
 
-class SenzActor extends Actor with AppConf {
+class SenzActor extends Actor with AppConf with SenzLogger {
 
   import context._
-
-  def logger = LoggerFactory.getLogger(this.getClass)
 
   // connect to senz tcp
   val remoteAddress = new InetSocketAddress(InetAddress.getByName(switchHost), switchPort)
@@ -39,7 +35,7 @@ class SenzActor extends Actor with AppConf {
   override def supervisorStrategy = OneForOneStrategy() {
     case e: Exception =>
       logger.error("Exception caught, [STOP ACTOR] " + e)
-      logFailure(e)
+      logError(e)
 
       // TODO send error status back
 
@@ -139,12 +135,6 @@ class SenzActor extends Actor with AppConf {
       logger.info("Signed senz: " + signedSenz)
 
       connection ! Write(ByteString(s"$signedSenz;"))
-  }
-
-  private def logFailure(throwable: Throwable) = {
-    val writer = new StringWriter
-    throwable.printStackTrace(new PrintWriter(writer))
-    logger.error(writer.toString)
   }
 
 }
