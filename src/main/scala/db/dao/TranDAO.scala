@@ -16,6 +16,31 @@ object TranDAO extends TableQuery(new Transactions(_)) with DbConf {
     db.run(this += trans)
   }
 
+  def getOrCreate(trans: Transaction) = {
+    val goc = (for {
+      t <- this.filter(_.uid === trans.uid).result.headOption
+      r <- t.map(DBIO.successful).getOrElse(this += trans)
+    } yield {
+      r match {
+        case i: Int => if (i == 1) trans else DBIO.failed(new Exception("Faild to create transaction"))
+        case t: Transaction => t
+      }
+    }).transactionally
+    //
+    //    val goc = this.filter(_.uid === trans.uid).result.headOption.flatMap {
+    //      case Some(t) =>
+    //        DBIO.successful(t)
+    //      case None =>
+    //        this += trans
+    //        //DBIO.successful(trans)
+    //    }.transactionally
+
+    db.run(goc)
+
+    //val t = this.filter(_.uid === trans.uid).result.headOption.map(_.getOrElse(trans))
+    //this.insertOrUpdate(t)
+  }
+
   def updateStatus(trans: Transaction) = {
     db.run(this.filter(_.uid === trans.uid).map(t => t.status).update(trans.status))
   }

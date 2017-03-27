@@ -14,7 +14,7 @@ object TransUtils {
     val uid = senz.attributes("#uid")
     val customer = senz.attributes.getOrElse("#acc", "")
     val amnt = senz.attributes.getOrElse("#amnt", "").toInt
-    val timestamp = senz.attributes.getOrElse("#time", "")
+    val timestamp = (System.currentTimeMillis() / 1000).toString
     val mobile = senz.attributes.get("#mob")
 
     Transaction(uid, customer, amnt, timestamp, "P", mobile, agent)

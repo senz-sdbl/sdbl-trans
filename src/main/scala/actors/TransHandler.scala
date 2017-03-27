@@ -56,7 +56,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf {
       val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
       IO(Tcp) ! Connect(remoteAddress, timeout = Option(15 seconds))
 
-      // create transaction
+      // create transaction, if not exists
       Await.result(TranDAO.create(tr), 10.seconds)
 
       // send status back
