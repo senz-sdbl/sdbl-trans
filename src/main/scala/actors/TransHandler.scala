@@ -113,8 +113,6 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
           handleResponse(response, connection)
         case _: ConnectionClosed =>
           logger.debug("ConnectionClosed")
-
-          // TODO send fail reply
         case TransTimeout() =>
           // timeout
           logger.error("TransTimeout")

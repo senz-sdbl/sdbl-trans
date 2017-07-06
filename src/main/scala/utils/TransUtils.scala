@@ -37,7 +37,7 @@ object TransUtils {
 
     val payMode = "02" // pay mode
     val epinb = trans.agent + " " * (16 - trans.agent.length) // ePINB, 16 digits, this is the agent details which sends with SMS
-    val offset = "SANASA BANK " // offset, 12 digits, this is the location which sends with SMS
+    val offset = "SDBbank     " // offset, 12 digits, this is the location which sends with SMS
     val mobile = trans.mobile.getOrElse("0000000000")
     val fromAcc = "0" * (12 - trans.agent.length) + trans.agent
     val toAcc = "0" * (12 - trans.customer.length) + trans.customer
