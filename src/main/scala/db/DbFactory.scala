@@ -14,13 +14,7 @@ object DbFactory extends DbConf {
     val agents = TableQuery[Agents]
     val trans = TableQuery[Transactions]
 
-    //Await.result(createDb("SDBL"), 10.seconds)
     Await.result(createTables(agents, trans), 10.seconds)
-  }
-
-  private def createDb(dbName: String): Future[_] = {
-    val db = Database.forURL(url = s"jdbc:mysql://$mysqlHost:$mysqlPort/", user = mysqlUser, password = mysqlPassword, driver = "com.mysql.jdbc.Driver")
-    db.run(sqlu"CREATE DATABASE IF NOT EXISTS #$dbName")
   }
 
   private def createTables(tables: TableQuery[_ <: Table[_]]*): Future[Seq[Unit]] = {
