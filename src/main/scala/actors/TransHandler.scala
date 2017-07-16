@@ -112,7 +112,14 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
 
           handleResponse(response, connection)
         case _: ConnectionClosed =>
-          logger.debug("ConnectionClosed")
+          logger.error("ConnectionClosed before complete the trans")
+
+          // cancel timer
+          timeoutCancellable.cancel()
+
+          // send error response
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          senzActor ! Msg(senz)
         case TransTimeout() =>
           // timeout
           logger.error("TransTimeout")
@@ -127,6 +134,9 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
     case CommandFailed(_: Connect) =>
       // failed to connect
       logger.error("CommandFailed[Failed to connect]")
+
+      // cancel timer
+      timeoutCancellable.cancel()
 
       // send fail status back
       val senz = s"DATA #uid ${trans.uid} #status ERROR @${trans.agent} ^sdbltrans"
