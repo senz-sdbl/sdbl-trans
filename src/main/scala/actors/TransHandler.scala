@@ -43,7 +43,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
   // handle timeout in 30 seconds
   var timeoutCancellable = system.scheduler.scheduleOnce(30.seconds, self, TransTimeout())
 
-  override def preStart() = {
+  override def preStart(): Unit = {
     logger.debug("Start actor: " + context.self.path)
   }
 
@@ -53,7 +53,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
       Try {
         Await.result(TranDAO.getOrCreate(tr), 10.seconds)
       } match {
-        case Success((t: Transaction, 1)) =>
+        case Success((_: Transaction, 1)) =>
           // transaction created
           // send INIT status back
           val senz = s"DATA #uid ${trans.uid} #status INIT @${trans.agent} ^sdbltrans"
@@ -85,7 +85,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
           // stop from here
           context.stop(self)
       }
-    case c@Connected(remote, local) =>
+    case Connected(_, _) =>
       logger.debug("TCP connected")
 
       // transMsg from trans
@@ -101,7 +101,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
 
       // handler response
       context become {
-        case CommandFailed(w: Write) =>
+        case CommandFailed(_: Write) =>
           logger.error("CommandFailed[Failed to write]")
         case Received(data) =>
           val response = data.decodeString("UTF-8")
@@ -146,7 +146,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
       context.stop(self)
   }
 
-  def handleResponse(response: String, connection: ActorRef) = {
+  def handleResponse(response: String, connection: ActorRef): Unit = {
     // parse response and get 'TransResp'
     TransUtils.getTransResp(response) match {
       case TransResp(_, "00", _) =>

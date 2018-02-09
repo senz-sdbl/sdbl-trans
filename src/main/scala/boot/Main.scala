@@ -11,12 +11,10 @@ import utils.SenzFactory
   */
 object Main extends App {
   // setup logging
-  SenzFactory.setupLogging()
-
   // setup keys
-  SenzFactory.setupKeys()
-
   // init db
+  SenzFactory.setupLogging()
+  SenzFactory.setupKeys()
   DbFactory.initDb()
 
   implicit val system = ActorSystem("senz")

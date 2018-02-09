@@ -28,7 +28,7 @@ class SenzActor extends Actor with AppConf with SenzLogger {
   val remoteAddress = new InetSocketAddress(InetAddress.getByName(switchHost), switchPort)
   IO(Tcp) ! Connect(remoteAddress)
 
-  override def preStart() = {
+  override def preStart(): Unit = {
     logger.debug("Start actor: " + context.self.path)
   }
 
@@ -44,7 +44,7 @@ class SenzActor extends Actor with AppConf with SenzLogger {
   }
 
   override def receive: Receive = {
-    case c@Connected(remote, local) =>
+    case Connected(_, _) =>
       logger.debug("TCP connected")
 
       // tcp conn
@@ -68,7 +68,7 @@ class SenzActor extends Actor with AppConf with SenzLogger {
   }
 
   def registering(connection: ActorRef): Receive = {
-    case CommandFailed(w: Write) =>
+    case CommandFailed(_: Write) =>
       logger.error("CommandFailed[Failed to write]")
     case Received(data) =>
       val senzMsg = data.decodeString("UTF-8")
@@ -79,7 +79,7 @@ class SenzActor extends Actor with AppConf with SenzLogger {
         // parse senz first
         val senz = SenzParser.parseSenz(senzMsg)
         senz match {
-          case Senz(SenzType.DATA, `switchName`, receiver, attr, signature) =>
+          case Senz(SenzType.DATA, `switchName`, _, attr, _) =>
             attr.get("#status") match {
               case Some("REG_DONE") =>
                 logger.info("Registration done")
@@ -97,14 +97,14 @@ class SenzActor extends Actor with AppConf with SenzLogger {
               case other =>
                 logger.error("UNSUPPORTED DATA message " + other)
             }
-          case any =>
+          case _ =>
             logger.debug(s"Not support other messages $senzMsg this stats")
         }
       }
   }
 
   def listening(connection: ActorRef): Receive = {
-    case CommandFailed(w: Write) =>
+    case CommandFailed(_: Write) =>
       logger.error("CommandFailed[Failed to write]")
     case Received(data) =>
       val senzMsg = data.decodeString("UTF-8")
@@ -115,11 +115,11 @@ class SenzActor extends Actor with AppConf with SenzLogger {
         // parse senz first
         val senz = SenzParser.parseSenz(senzMsg)
         senz match {
-          case Senz(SenzType.PUT, sender, receiver, attr, signature) =>
+          case Senz(SenzType.PUT, _, _, _, _) =>
             // handle transaction request via trans actor
             val trans = TransUtils.getTrans(senz)
             context.actorOf(TransHandler.props(trans))
-          case any =>
+          case _ =>
             logger.debug(s"Not support message: $senzMsg")
         }
       }

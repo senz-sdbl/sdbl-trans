@@ -25,7 +25,7 @@ trait CassandraTransDbComp extends TransDbComp {
       val sqlCreateIndexTransStatus = "CREATE INDEX trans_status on trans(status);"
     }
 
-    override def createAgent(agent: Agent) = {
+    override def createAgent(agent: Agent): Unit = {
       // insert query
       val statement = QueryBuilder.insertInto("agent")
         .value("account", agent.account)
@@ -48,7 +48,7 @@ trait CassandraTransDbComp extends TransDbComp {
       else None
     }
 
-    override def createTrans(trans: Transaction) = {
+    override def createTrans(trans: Transaction): Unit = {
       // insert query
       val statement = QueryBuilder.insertInto("trans")
         .value("agent", trans.agent)
@@ -60,7 +60,7 @@ trait CassandraTransDbComp extends TransDbComp {
       session.execute(statement)
     }
 
-    override def updateTrans(trans: Transaction) = {
+    override def updateTrans(trans: Transaction): Unit = {
       // update query
       val statement = QueryBuilder.update("trans")
         .`with`(set("status", trans.status))
