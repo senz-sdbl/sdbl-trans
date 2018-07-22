@@ -41,7 +41,7 @@ class TransHandler(trans: Transaction) extends Actor with AppConf with SenzLogge
   self ! InitTrans(trans)
 
   // handle timeout in 30 seconds
-  var timeoutCancellable = system.scheduler.scheduleOnce(30.seconds, self, TransTimeout())
+  var timeoutCancellable = system.scheduler.scheduleOnce(40.seconds, self, TransTimeout())
 
   override def preStart(): Unit = {
     logger.debug("Start actor: " + context.self.path)
