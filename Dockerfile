@@ -19,6 +19,7 @@ RUN rm -rf /var/cache/oracle-jdk8-installer
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # set service variables
+ENV SENZIE_PORT 8080
 ENV SWITCH_HOST dev.localhost
 ENV SWITCH_PORT 7070
 ENV EPIC_HOST dev.localhost
@@ -41,6 +42,9 @@ VOLUME ["/app/logs"]
 
 # .keys volume
 VOLUME ["/app/.keys"]
+
+# Service run on 8080 port
+EXPOSE 8080
 
 # command
 ENTRYPOINT [ "java", "-jar", "/app/trans.jar" ]
