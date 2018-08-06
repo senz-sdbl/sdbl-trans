@@ -1,9 +1,9 @@
 package boot
 
-import actors.SenzActor.InitSenz
 import actors._
 import akka.actor.ActorSystem
-import db.DbFactory
+import akka.io.IO
+import spray.can.Http
 import utils.SenzFactory
 
 /**
@@ -14,14 +14,16 @@ object Main extends App {
   // setup keys
   // init db
   SenzFactory.setupLogging()
-  SenzFactory.setupKeys()
-  DbFactory.initDb()
+  //SenzFactory.setupKeys()
+  //DbFactory.initDb()
 
   implicit val system = ActorSystem("senz")
 
-  // start senz actor
-  val senzActor = system.actorOf(SenzActor.props, name = "SenzActor")
-  senzActor ! InitSenz
+  // create and start rest service actor
+  val restService = system.actorOf(ServiceActor.props(), "contract-service")
+
+  // start HTTP server with rest service actor as a handler
+  IO(Http) ! Http.Bind(restService, "0.0.0.0", 7070)
 
   //import scala.concurrent.Await
   //import scala.concurrent.duration._

@@ -118,7 +118,7 @@ class SenzActor extends Actor with AppConf with SenzLogger {
           case Senz(SenzType.PUT, _, _, _, _) =>
             // handle transaction request via trans actor
             val trans = TransUtils.getTrans(senz)
-            context.actorOf(TransHandler.props(trans))
+            //context.actorOf(TransHandler.props(trans))
           case _ =>
             logger.debug(s"Not support message: $senzMsg")
         }

@@ -9,8 +9,14 @@ libraryDependencies ++= {
   val akkaVersion       = "2.3.9"
   val cassandraVersion  = "2.1.9"
   val slickVersion      = "3.0.0"
+  val sprayVersion      = "1.3.2"
 
   Seq(
+    "commons-io"              % "commons-io"                % "2.5",
+    "io.spray"                %% "spray-can"                % sprayVersion,
+    "io.spray"                %% "spray-routing"            % sprayVersion,
+    "io.spray"                %% "spray-client"             % sprayVersion,
+    "io.spray"                %% "spray-json"               % sprayVersion,
     "com.typesafe.akka"       %% "akka-actor"               % akkaVersion,
     "com.typesafe.akka"       %% "akka-slf4j"               % akkaVersion,
     "com.typesafe.slick"      %% "slick"                    % slickVersion,
@@ -19,6 +25,7 @@ libraryDependencies ++= {
     "c3p0"                    % "c3p0"                      % "0.9.1.2",
     "org.slf4j"               % "slf4j-api"                 % "1.7.5",
     "ch.qos.logback"          % "logback-classic"           % "1.0.9",
+    "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2",
     "org.scalatest"           % "scalatest_2.11"            % "2.2.1"               % "test"
   )
 }
