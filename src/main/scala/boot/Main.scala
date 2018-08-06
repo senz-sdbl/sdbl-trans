@@ -19,13 +19,12 @@ object Main extends App with AppConf {
   SenzFactory.setupKeys()
   DbFactory.initDb()
 
-  implicit val system = ActorSystem("senz")
-
   // create and start rest service actor
+  implicit val system = ActorSystem("senz")
   val restService = system.actorOf(ServiceActor.props(), "contract-service")
 
   // start HTTP server with rest service actor as a handler
-  IO(Http) ! Http.Bind(restService, "0.0.0.0", switchPort)
+  IO(Http) ! Http.Bind(restService, "0.0.0.0", senziePort)
 
   //import scala.concurrent.Await
   //import scala.concurrent.duration._
