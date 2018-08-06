@@ -20,13 +20,11 @@ libraryDependencies ++= {
     "com.typesafe.akka"       %% "akka-actor"               % akkaVersion,
     "com.typesafe.akka"       %% "akka-slf4j"               % akkaVersion,
     "com.typesafe.slick"      %% "slick"                    % slickVersion,
-    "com.datastax.cassandra"  % "cassandra-driver-core"     % cassandraVersion,
     "mysql"                   % "mysql-connector-java"      % "5.1.34",
     "c3p0"                    % "c3p0"                      % "0.9.1.2",
     "org.slf4j"               % "slf4j-api"                 % "1.7.5",
     "ch.qos.logback"          % "logback-classic"           % "1.0.9",
-    "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2",
-    "org.scalatest"           % "scalatest_2.11"            % "2.2.1"               % "test"
+    "org.scala-lang.modules" %% "scala-parser-combinators"  % "1.0.2"
   )
 }
 
