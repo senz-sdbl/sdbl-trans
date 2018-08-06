@@ -9,7 +9,9 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import config.AppConf
 import org.slf4j.LoggerFactory
-import protocols.Msg
+import protocols.Contract
+import spray.http.StatusCodes
+import spray.routing.RequestContext
 import utils.AccInquiryUtils
 
 import scala.concurrent.duration._
@@ -24,19 +26,17 @@ object AccInqHandler {
 
   case class AccInqTimeout()
 
-  def props(accInq: AccInq): Props = Props(new AccInqHandler(accInq))
+  def props(requestContext: RequestContext, accInq: AccInq): Props = Props(new AccInqHandler(requestContext, accInq))
 
 }
 
-class AccInqHandler(accInq: AccInq) extends Actor with AppConf {
+class AccInqHandler(requestContext: RequestContext, accInq: AccInq) extends Actor with AppConf {
 
   import AccInqHandler._
   import context._
+  import protocols.ContractProtocol._
 
   def logger = LoggerFactory.getLogger(this.getClass)
-
-  // we need senz sender to send reply back
-  val senzActor = context.actorSelection("/user/SenzActor")
 
   // connect to epic tcp end
   val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
@@ -82,22 +82,14 @@ class AccInqHandler(accInq: AccInq) extends Actor with AppConf {
           // cancel timer
           timeoutCancellable.cancel()
 
-          // send error status back
-          val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
-          senzActor ! Msg(senz)
-
-          // stop from here
-          context.stop(self)
+          // send error back
+          requestContext.complete(StatusCodes.BadRequest -> "400")
         case AccInqTimeout() =>
           // timeout
           logger.error("acc inq timeout")
 
           // send error status back
-          val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
-          senzActor ! Msg(senz)
-
-          // stop from here
-          context.stop(self)
+          requestContext.complete(StatusCodes.BadRequest -> "400")
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
@@ -108,10 +100,7 @@ class AccInqHandler(accInq: AccInq) extends Actor with AppConf {
 
       // send error status back
       val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
-      senzActor ! Msg(senz)
-
-      // stop from here
-      context.stop(self)
+      requestContext.complete(StatusCodes.BadRequest -> "400")
   }
 
   def handleResponse(response: String, connection: ActorRef): Unit = {
@@ -129,25 +118,23 @@ class AccInqHandler(accInq: AccInq) extends Actor with AppConf {
 
         // send response back
         val senz = s"DATA #acc ${ans.trim.replaceAll(" ", "_")} @${accInq.agent} ^$senzieName"
-        senzActor ! Msg(senz)
+        requestContext.complete(Contract("uid", senz))
       case AccInqResp(_, "11", _, _) =>
         logger.error(s"No account found for id ${accInq.nic}")
 
         // send empty response back
         val senz = s"DATA #acc @${accInq.agent} ^$senzieName"
-        senzActor ! Msg(senz)
+        requestContext.complete(Contract("uid", senz))
       case AccInqResp(_, status, _, _) =>
         logger.error("acc inq fail with stats: " + status)
 
         // send empty response back
-        val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
-        senzActor ! Msg(senz)
+        requestContext.complete(StatusCodes.BadRequest -> "400")
       case resp =>
         logger.error("invalid response " + resp)
 
         // send error status back
-        val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
-        senzActor ! Msg(senz)
+        requestContext.complete(StatusCodes.BadRequest -> "400")
     }
 
     context.stop(self)

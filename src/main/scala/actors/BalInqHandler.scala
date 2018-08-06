@@ -5,7 +5,9 @@ import java.net.URL
 import akka.actor.{Actor, Props}
 import akka.util.Timeout
 import config.AppConf
-import protocols.Msg
+import protocols.Contract
+import spray.http.StatusCodes
+import spray.routing.RequestContext
 import utils.SenzLogger
 
 import scala.concurrent.{Await, Future}
@@ -23,21 +25,19 @@ object BalInqHandler {
 
   case class BalInqTimeout()
 
-  def props: Props = Props(new BalInqHandler)
+  def props(requestContext: RequestContext): Props = Props(new BalInqHandler(requestContext))
 
 }
 
-class BalInqHandler extends Actor with AppConf with SenzLogger {
+class BalInqHandler(requestContext: RequestContext) extends Actor with AppConf with SenzLogger {
 
   import BalInqHandler._
+  import protocols.ContractProtocol._
 
   import scala.concurrent.ExecutionContext.Implicits._
   import scala.concurrent.duration._
 
   implicit val timeout = Timeout(30.seconds)
-
-  // we need senz sender to send reply back
-  val senzActor = context.actorSelection("/user/SenzActor")
 
   override def preStart(): Unit = {
     logger.debug("Start actor: " + context.self.path)
@@ -70,13 +70,10 @@ class BalInqHandler extends Actor with AppConf with SenzLogger {
 
           // return to sender
           val senz = s"DATA #bal ${bal.getOrElse("")} #name ${name.map(_.replaceAll(" ", "|")).getOrElse("")} @$agent ^$senzieName"
-          senzActor ! Msg(senz)
+          requestContext.complete(Contract("uid", senz))
         case e =>
           logger.info(s"fail to complete acc inq $e")
-          val senz = s"DATA #status ERROR @$agent ^$senzieName"
-          senzActor ! Msg(senz)
-
-          context.stop(self)
+          requestContext.complete(StatusCodes.BadRequest -> "400")
       }
   }
 

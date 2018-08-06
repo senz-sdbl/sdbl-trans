@@ -32,6 +32,8 @@ trait RestService extends HttpService with SenzLogger {
               logger.info(s"POST contract $contract")
               val senz = Try(SenzParser.parseSenz(contract.senz))
               senz match {
+                case Success(z@Senz(SenzType.SHARE, _, _, _, _)) =>
+                  requestContext.complete(StatusCodes.Created -> "201")
                 case Success(z@Senz(SenzType.PUT, _, _, _, _)) =>
                   // trans
                   val trans = TransUtils.getTrans(z)
@@ -45,7 +47,7 @@ trait RestService extends HttpService with SenzLogger {
                   } else if (attr.contains("#bal") && attr.contains("#acc")) {
                     // bal inq
                     val balInq = BalInqUtils.getBalInq(z)
-                    //context.actorOf(BalInqHandler.props) ! balInq
+                    actorRefFactory.actorOf(BalInqHandler.props(requestContext))
                   }
                 case _ =>
                   logger.debug(s"Not support message: ${contract.senz}")
