@@ -33,7 +33,7 @@ trait RestService extends HttpService with SenzLogger {
               val senz = Try(SenzParser.parseSenz(contract.senz))
               senz match {
                 case Success(z@Senz(SenzType.SHARE, _, _, _, _)) =>
-                //requestContext.complete(StatusCodes.Created -> "201")
+                  //requestContext.complete(StatusCodes.Created -> "201")
                   requestContext.complete(Contract("uid", "DATA #status 201 @agent ^switch digsig;"))
                 case Success(z@Senz(SenzType.PUT, _, _, _, _)) =>
                   // trans

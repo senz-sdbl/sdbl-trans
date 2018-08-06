@@ -17,7 +17,7 @@ object Main extends App with AppConf {
   // init db
   SenzFactory.setupLogging()
   SenzFactory.setupKeys()
-  //DbFactory.initDb()
+  DbFactory.initDb()
 
   implicit val system = ActorSystem("senz")
 

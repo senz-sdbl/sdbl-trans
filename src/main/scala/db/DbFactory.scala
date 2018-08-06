@@ -14,7 +14,7 @@ object DbFactory extends DbConf {
     val agents = TableQuery[Agents]
     val trans = TableQuery[Transactions]
 
-    Await.result(createTables(agents, trans), 30.seconds)
+    Await.result(createTables(agents, trans), 10.seconds)
   }
 
   private def createTables(tables: TableQuery[_ <: Table[_]]*): Future[Seq[Unit]] = {
