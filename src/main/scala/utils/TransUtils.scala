@@ -38,7 +38,7 @@ object TransUtils {
     val payMode = "02" // pay mode
     val epinb = trans.agent + " " * (16 - trans.agent.length) // ePINB, 16 digits, this is the agent details which sends with SMS
     val offset = "SDBbank     " // offset, 12 digits, this is the location which sends with SMS
-    val mobile = trans.mobile.getOrElse("0000000000")
+    val mobile = getMobile(trans.mobile)
     val fromAcc = "0" * (12 - trans.agent.length) + trans.agent
     val toAcc = "0" * (12 - trans.customer.length) + trans.customer
     val amnt = "%010d".format(trans.amount) + "00" // amount, 12 digits
@@ -83,5 +83,11 @@ object TransUtils {
     val status = tuples(0).substring(tuples(0).length - 2, tuples(0).length)
     TransResp("ESH", status, "RSP")
   }
-}
 
+  def getMobile(mobil: Option[String]): String = {
+    mobil match {
+      case Some(m) => if (m.isEmpty) "0000000000" else m
+      case None => "0000000000"
+    }
+  }
+}

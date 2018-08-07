@@ -57,14 +57,13 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
           // transaction created
           // connect tcp
           // connect to epic tcp end
+          logger.info(s"New trans: ${tr.uid}")
           val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
           IO(Tcp) ! Connect(remoteAddress, timeout = Option(15.seconds))
-
-          val senz = s"DATA #uid ${trans.uid} #status INIT @${trans.agent} ^sdbltrans"
-          requestContext.complete(Contract(trans.uid, senz))
         case Success((t: Transaction, 0)) =>
           // transaction exists
           // send transaction status back
+          logger.info(s"Existing trans: ${trans.uid}")
           val senz = s"DATA #uid ${trans.uid} #status ${t.status} @${trans.agent} ^sdbltrans"
           requestContext.complete(Contract(trans.uid, senz))
         case Success(r) =>
@@ -75,7 +74,8 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
 
           // something went wrong
           // send ERROR status back
-          requestContext.complete(StatusCodes.BadRequest -> "400")
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          requestContext.complete(Contract(trans.uid, senz))
       }
     case Connected(_, _) =>
       logger.debug("TCP connected")
@@ -96,7 +96,9 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
         case CommandFailed(_: Write) =>
           logger.error("CommandFailed[Failed to write]")
           timeoutCancellable.cancel()
-          requestContext.complete(StatusCodes.BadRequest -> "400")
+
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          requestContext.complete(Contract(trans.uid, senz))
         case Received(data) =>
           val response = data.decodeString("UTF-8")
           logger.debug("Received : " + response)
@@ -112,13 +114,15 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
           timeoutCancellable.cancel()
 
           // send error response
-          requestContext.complete(StatusCodes.BadRequest -> "400")
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          requestContext.complete(Contract(trans.uid, senz))
         case TransTimeout() =>
           // timeout
           logger.error("TransTimeout")
 
           // send error response
-          requestContext.complete(StatusCodes.BadRequest -> "400")
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          requestContext.complete(Contract(trans.uid, senz))
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
@@ -128,7 +132,8 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
       timeoutCancellable.cancel()
 
       // send fail status back
-      requestContext.complete(StatusCodes.BadRequest -> "400")
+      val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+      requestContext.complete(Contract(trans.uid, senz))
   }
 
   def handleResponse(response: String, connection: ActorRef): Unit = {
@@ -150,13 +155,16 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
         Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "ERROR", trans.mobile, trans.agent)), 10.seconds)
 
         // send fail status back
-        requestContext.complete(StatusCodes.BadRequest -> "400")
+        val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+        requestContext.complete(Contract(trans.uid, senz))
       case transResp =>
         logger.error("Invalid response " + transResp)
 
         // send fail status back
-        requestContext.complete(StatusCodes.BadRequest -> "400")
+        val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+        requestContext.complete(Contract(trans.uid, senz))
     }
   }
 }
+
 
