@@ -10,7 +10,6 @@ import config.AppConf
 import db.dao.TranDAO
 import db.model.Transaction
 import protocols.Contract
-import spray.http.StatusCodes
 import spray.routing.RequestContext
 import utils.{SenzLogger, TransUtils}
 
@@ -19,7 +18,6 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 object TransHandler {
-
   case class InitTrans(trans: Transaction)
 
   case class TransMsg(msgStream: Array[Byte])
@@ -40,12 +38,8 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
   // send init trans to self
   self ! InitTrans(trans)
 
-  // handle timeout in 30 seconds
-  var timeoutCancellable = system.scheduler.scheduleOnce(30.seconds, self, TransTimeout())
-
-  override def preStart(): Unit = {
-    logger.debug("Start actor: " + context.self.path)
-  }
+  // handle timeout in 60 seconds
+  var timeoutCancellable = system.scheduler.scheduleOnce(60.seconds, self, TransTimeout())
 
   override def receive: Receive = {
     case InitTrans(tr) =>
@@ -57,18 +51,26 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
           // transaction created
           // connect tcp
           // connect to epic tcp end
-          logger.info(s"New trans: ${tr.uid}")
+          logger.info(s"New trans received uid: ${tr.uid}")
           val remoteAddress = new InetSocketAddress(InetAddress.getByName(epicHost), epicPort)
           IO(Tcp) ! Connect(remoteAddress, timeout = Option(15.seconds))
         case Success((t: Transaction, 0)) =>
           // transaction exists
           // send transaction status back
-          logger.info(s"Existing trans: ${trans.uid}")
+          logger.info(s"Existing trans uid: ${trans.uid}")
+
           val senz = s"DATA #uid ${trans.uid} #status ${t.status} @${trans.agent} ^sdbltrans"
           requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
         case Success(r) =>
           // unexpected result
-          logger.error(s"Unexpected result: $r")
+          logger.error(s"Unexpected result: $r uid: ${trans.uid}")
+
+          val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
+          requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
         case Failure(e) =>
           logError(e)
 
@@ -76,15 +78,17 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
           // send ERROR status back
           val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
           requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
       }
     case Connected(_, _) =>
-      logger.debug("TCP connected")
+      logger.debug(s"TCP connected uid: ${trans.uid}")
 
       // transMsg from trans
       val transMsg = TransUtils.getTransMsg(trans)
       val msgStream = new String(transMsg.msgStream)
 
-      logger.debug("Send TransMsg " + msgStream)
+      logger.debug(s"Send TransMsg uid:${trans.uid} msg: $msgStream ")
 
       // send TransMsg
       val connection = sender()
@@ -94,39 +98,43 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
       // handler response
       context become {
         case CommandFailed(_: Write) =>
-          logger.error("CommandFailed[Failed to write]")
+          logger.error(s"CommandFailed[Failed to write] uid: ${trans.uid}")
           timeoutCancellable.cancel()
 
           val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
           requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
         case Received(data) =>
           val response = data.decodeString("UTF-8")
-          logger.debug("Received : " + response)
+          logger.debug(s"Response received: $response uid: ${trans.uid}")
 
-          // cancel timer
           timeoutCancellable.cancel()
 
           handleResponse(response, connection)
         case _: ConnectionClosed =>
-          logger.error("ConnectionClosed before complete the trans")
+          logger.error(s"ConnectionClosed before complete the trans uid: ${trans.uid}")
 
-          // cancel timer
           timeoutCancellable.cancel()
 
           // send error response
           val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
           requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
         case TransTimeout() =>
           // timeout
-          logger.error("TransTimeout")
+          logger.error(s"TransTimeout uid: ${trans.uid}")
 
           // send error response
           val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
           requestContext.complete(Contract(trans.uid, senz))
+
+          context.stop(self)
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
-      logger.error("CommandFailed[Failed to connect]")
+      logger.error(s"CommandFailed[Failed to connect] uid: ${trans.uid}")
 
       // cancel timer
       timeoutCancellable.cancel()
@@ -134,13 +142,15 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
       // send fail status back
       val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
       requestContext.complete(Contract(trans.uid, senz))
+
+      context.stop(self)
   }
 
   def handleResponse(response: String, connection: ActorRef): Unit = {
     // parse response and get 'TransResp'
     TransUtils.getTransResp(response) match {
       case TransResp(_, "00", _) =>
-        logger.debug("Transaction done")
+        logger.debug(s"Transaction done uid: ${trans.uid}")
 
         // update db
         Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "DONE", trans.mobile, trans.agent)), 10.seconds)
@@ -149,7 +159,7 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
         val senz = s"DATA #uid${trans.uid} #status DONE @${trans.agent} ^$senzieName"
         requestContext.complete(Contract(trans.uid, senz))
       case TransResp(_, status, _) =>
-        logger.error("Transaction fail with stats: " + status)
+        logger.error(s"Transaction fail with stats: $status uid: ${trans.uid}")
 
         // update db
         Await.result(TranDAO.updateStatus(Transaction(trans.uid, trans.customer, trans.amount, trans.timestamp, "ERROR", trans.mobile, trans.agent)), 10.seconds)
@@ -158,12 +168,14 @@ class TransHandler(requestContext: RequestContext, trans: Transaction) extends A
         val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
         requestContext.complete(Contract(trans.uid, senz))
       case transResp =>
-        logger.error("Invalid response " + transResp)
+        logger.error(s"Invalid response $transResp uid: ${trans.uid}")
 
         // send fail status back
         val senz = s"DATA #uid${trans.uid} #status ERROR @${trans.agent} ^$senzieName"
         requestContext.complete(Contract(trans.uid, senz))
     }
+
+    context.stop(self)
   }
 }
 

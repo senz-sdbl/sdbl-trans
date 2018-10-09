@@ -45,19 +45,15 @@ class AccInqHandler(requestContext: RequestContext, accInq: AccInq) extends Acto
   // handle timeout in 30 seconds
   var timeoutCancellable = system.scheduler.scheduleOnce(30.seconds, self, AccInqTimeout())
 
-  override def preStart(): Unit = {
-    logger.debug("Start actor: " + context.self.path)
-  }
-
   override def receive: Receive = {
     case Connected(_, _) =>
-      logger.debug("TCP connected")
+      logger.debug(s"TCP connected nic: ${accInq.nic}")
 
       // inqMsg from
       val inqMsg = AccInquiryUtils.getAccInqMsg(accInq)
       val msgStream = new String(inqMsg.msgStream)
 
-      logger.debug("Send AccInq: " + msgStream)
+      logger.debug(s"Send AccInq: $msgStream nic: ${accInq.nic}")
 
       // send AccInq
       val connection = sender()
@@ -67,40 +63,45 @@ class AccInqHandler(requestContext: RequestContext, accInq: AccInq) extends Acto
       // handler response
       context become {
         case CommandFailed(_: Write) =>
-          logger.error("CommandFailed[Failed to write]")
+          logger.error(s"CommandFailed[Failed to write] nic: ${accInq.nic}")
+
+          requestContext.complete(StatusCodes.BadRequest -> "400")
+          context.stop(self)
         case Received(data) =>
           val response = data.decodeString("UTF-8")
-          logger.debug("Response received: " + response)
+          logger.debug(s"Response received: $response nic: ${accInq.nic}")
 
           // cancel timer
           timeoutCancellable.cancel()
 
           handleResponse(response, connection)
         case _: ConnectionClosed =>
-          logger.error("ConnectionClosed before complete the trans")
+          logger.error(s"ConnectionClosed before complete the trans uid: ${accInq.nic}")
 
           // cancel timer
           timeoutCancellable.cancel()
 
           // send error back
           requestContext.complete(StatusCodes.BadRequest -> "400")
+          context.stop(self)
         case AccInqTimeout() =>
           // timeout
-          logger.error("acc inq timeout")
+          logger.error(s"Acc inq timeout nic: ${accInq.nic}")
 
           // send error status back
           requestContext.complete(StatusCodes.BadRequest -> "400")
+          context.stop(self)
       }
     case CommandFailed(_: Connect) =>
       // failed to connect
-      logger.error("CommandFailed[Failed to connect]")
+      logger.error(s"CommandFailed[Failed to connect] nic: ${accInq.nic}")
 
       // cancel timer
       timeoutCancellable.cancel()
 
       // send error status back
-      val senz = s"DATA #status ERROR @${accInq.agent} ^$senzieName"
       requestContext.complete(StatusCodes.BadRequest -> "400")
+      context.stop(self)
   }
 
   def handleResponse(response: String, connection: ActorRef): Unit = {
@@ -114,24 +115,23 @@ class AccInqHandler(requestContext: RequestContext, accInq: AccInq) extends Acto
           val t = an.split("#")
           t(1).trim + "|" + t(2).trim
         }).mkString(",")
-        logger.debug(s"ans: $data")
 
         // send response back
         val senz = s"DATA #acc ${ans.trim.replaceAll(" ", "_")} @${accInq.agent} ^$senzieName"
         requestContext.complete(Contract("uid", senz))
       case AccInqResp(_, "11", _, _) =>
-        logger.error(s"No account found for id ${accInq.nic}")
+        logger.error(s"No account found nic: ${accInq.nic}")
 
         // send empty response back
         val senz = s"DATA #acc @${accInq.agent} ^$senzieName"
         requestContext.complete(Contract("uid", senz))
       case AccInqResp(_, status, _, _) =>
-        logger.error("acc inq fail with stats: " + status)
+        logger.error(s"acc inq failed status $status nic: ${accInq.nic}")
 
         // send empty response back
         requestContext.complete(StatusCodes.BadRequest -> "400")
       case resp =>
-        logger.error("invalid response " + resp)
+        logger.error(s"Invalid response $resp nic: ${accInq.nic}")
 
         // send error status back
         requestContext.complete(StatusCodes.BadRequest -> "400")
